@@ -71,7 +71,10 @@ void initialize() {
         movement.x = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ?  0.05f : 0;
         movement.y = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ? -0.05f : 0;
         
-        gjk::core::camera.Update(movement);
+        float up = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS ? 0.05f : 0;
+        float down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ? -0.05f : 0;
+        
+        gjk::core::camera.Update(movement, up, down);
         
         shader.Use();
         shader.SetMatrix4("projection", gjk::core::camera.projection);

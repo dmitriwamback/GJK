@@ -23,7 +23,7 @@ public:
     int mouseButton = GLFW_MOUSE_BUTTON_RIGHT;
     
     static void Initialize();
-    void Update(glm::vec4 movement);
+    void Update(glm::vec4 movement, float up, float down);
 };
 
 Camera camera;
@@ -37,7 +37,7 @@ void Camera::Initialize() {
     camera.projection = glm::perspective(3.14159265358f/2.0f, 3.0f/2.0f, 0.1f, 1000.0f);
 }
 
-void Camera::Update(glm::vec4 movement) {
+void Camera::Update(glm::vec4 movement, float up, float down) {
     
     float forward = movement.x,
           backward = movement.y,
@@ -46,8 +46,9 @@ void Camera::Update(glm::vec4 movement) {
     
     glm::vec3 motion = lookDirection;
     
-    position += motion * (forward + backward) * 5.0f;
-    position -= glm::normalize(glm::cross(motion, glm::vec3(0.0f, 1.0f, 0.0f))) * (left + right) * 5.0f;
+    position += motion * (forward + backward) * 2.0f;
+    position -= glm::normalize(glm::cross(motion, glm::vec3(0.0f, 1.0f, 0.0f))) * (left + right) * 2.0f;
+    position += glm::vec3(0.0f, 1.0f, 0.0f) * (up + down) * 2.0f;
     
     lookDirection = glm::normalize(glm::vec3(cos(camera.yaw) * cos(camera.pitch),
                                              sin(camera.pitch),
