@@ -8,7 +8,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <glfw3.h>
-#include "gjkcore/gjkmain.h"
+#include "core/core.h"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
