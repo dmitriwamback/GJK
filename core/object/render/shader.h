@@ -8,7 +8,7 @@
 #ifndef shader_h
 #define shader_h
 
-namespace gjk::core {
+namespace core {
 
 class Shader {
 public:

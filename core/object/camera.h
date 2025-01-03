@@ -8,12 +8,14 @@
 #ifndef camera_h
 #define camera_h
 
-namespace gjk::core {
+namespace core {
 
 class Camera {
 public:
-    glm::vec3 position, lookDirection;
+    glm::vec3 position, lookDirection, velocity;
     glm::mat4 projection, lookAt;
+    
+    glm::vec3 mouseRayDirection;
     
     float pitch;
     float yaw = 3.0f * 3.14159265358f/2.0f;
@@ -34,6 +36,7 @@ void Camera::Initialize() {
     
     camera.position = glm::vec3(0.0f, 6.0f, 0.0f);
     camera.lookDirection = glm::vec3(0.0f, 0.0f, -1.0f);
+    camera.velocity = glm::vec3(0.0f);
     
     camera.projection = glm::perspective(3.14159265358f/2.0f, 3.0f/2.0f, 0.1f, 1000.0f);
 }
@@ -47,9 +50,9 @@ void Camera::Update(glm::vec4 movement, float up, float down) {
     
     glm::vec3 motion = lookDirection;
     
-    position += motion * (forward + backward) * 2.0f;
-    position -= glm::normalize(glm::cross(motion, glm::vec3(0.0f, 1.0f, 0.0f))) * (left + right) * 2.0f;
-    position += glm::vec3(0.0f, 1.0f, 0.0f) * (up + down) * 2.0f;
+    velocity = (motion * (forward + backward) * 2.0f) - (glm::normalize(glm::cross(motion, glm::vec3(0.0f, 1.0f, 0.0f))) * (left + right) * 2.0f) + (glm::vec3(0.0f, 1.0f, 0.0f) * (up + down) * 2.0f);
+    
+    position += velocity;
     
     lookDirection = glm::normalize(glm::vec3(cos(camera.yaw) * cos(camera.pitch),
                                              sin(camera.pitch),
@@ -58,7 +61,7 @@ void Camera::Update(glm::vec4 movement, float up, float down) {
     lookAt = glm::lookAt(position, position + lookDirection, glm::vec3(0.0f, 1.0f, 0.0f));
     
     int width, height;
-    glfwGetWindowSize(gjk::window, &width, &height);
+    glfwGetWindowSize(core::window, &width, &height);
     float aspect = (float)width / (float)height;
     
     projection = glm::perspective(3.14159265358f/2.0f, aspect, 0.1f, 1000.0f);
@@ -66,7 +69,7 @@ void Camera::Update(glm::vec4 movement, float up, float down) {
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     
-    if (glfwGetMouseButton(gjk::window, camera.mouseButton)) {
+    if (glfwGetMouseButton(window, camera.mouseButton)) {
         
         float deltaX = xpos - camera.lastMouseX;
         float deltaY = ypos - camera.lastMouseY;
@@ -83,6 +86,25 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
                                             sin(camera.yaw) * cos(camera.pitch)
                                             ));
     }
+    
+    int width, height;
+    glfwGetWindowSize(core::window, &width, &height);
+    
+    float x = 2.0f * camera.lastMouseX / (float)width - 1.0f;
+    float y = 1.0f - (2.0f * camera.lastMouseY) / (float)height;
+    
+    glm::vec3 nearPlane = glm::vec3(x, y, 0.0f);
+    glm::vec3 farPlane = glm::vec3(x, y, 1.0f);
+    
+    glm::mat4 inverseProjection = glm::inverse(camera.projection);
+    
+    glm::vec4 nearWorld = inverseProjection * glm::vec4(nearPlane, 1.0f);
+    glm::vec4 farWorld = inverseProjection * glm::vec4(farPlane, 1.0f);
+    nearWorld /= nearWorld.w;
+    farWorld /= farWorld.w;
+    
+    glm::vec3 rayDirection = glm::normalize(glm::vec3(farWorld) - glm::vec3(nearWorld));
+    camera.mouseRayDirection = glm::normalize(glm::vec3(glm::inverse(camera.lookAt) * glm::vec4(rayDirection, 0.0f)));
     
     std::cout << camera.pitch << " " << camera.yaw << '\n';
     std::cout << camera.position.x << " " << camera.position.y << " " << camera.position.z << '\n';

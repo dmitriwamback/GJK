@@ -9,8 +9,9 @@
 #define gjk_h
 
 #include <algorithm>
+#include <glm/gtx/norm.hpp>
 
-namespace gjk::core::math {
+namespace core {
 
 glm::vec3 support(const std::vector<float>& vertices, const std::vector<uint32_t>& indices, glm::vec3 direction) {
     
@@ -29,13 +30,13 @@ glm::vec3 support(const std::vector<float>& vertices, const std::vector<uint32_t
     return bestVertex;
 }
 
-bool CollideWithCamera(gjk::core::Cube testCube) {
+bool CollideWithCamera(Cube testCube) {
     
-    glm::vec3 direction = glm::normalize(gjk::core::camera.position);
+    glm::vec3 direction = glm::normalize(camera.position);
     std::vector<glm::vec3> simplex;
     std::vector<float> projectedVertices = testCube.GetColliderVertices();
     
-    glm::vec3 supportVertex = support(projectedVertices, testCube.indices, direction) - gjk::core::camera.position;
+    glm::vec3 supportVertex = support(projectedVertices, testCube.indices, direction) - camera.position;
     simplex.push_back(supportVertex);
     direction = -supportVertex;
     
@@ -44,7 +45,7 @@ bool CollideWithCamera(gjk::core::Cube testCube) {
     
     while (iteration < MAX_ITERATIONS) {
         
-        glm::vec3 newPoint = support(projectedVertices, testCube.indices, direction) - gjk::core::camera.position;
+        glm::vec3 newPoint = support(projectedVertices, testCube.indices, direction) - camera.position;
         
         if (glm::dot(newPoint, direction) <= 0.01f) return false;
         
@@ -110,6 +111,23 @@ bool CollideWithCamera(gjk::core::Cube testCube) {
     return false;
 }
 
+void CameraCollisionResponse(Cube cube) {
+    
+    Ray ray{camera.position, camera.velocity};
+    if (glm::length(camera.velocity) > 0) {
+        ray.direction = glm::normalize(camera.velocity);
+    }
+    
+    auto intersection = core::Raycast(ray, cube.GetColliderVertices(), cube.indices);
+    if (intersection) {
+        glm::vec3 collisionPoint = intersection->intersectionPoint;
+        
+        glm::vec3 centerToPoint = collisionPoint - cube.position;
+        glm::vec3 normal = glm::normalize(centerToPoint);
+                
+        //camera.position = collisionPoint + normal;
+    }
+}
 }
 
 #endif /* gjk_h */

@@ -12,5 +12,5 @@
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    gjk::initialize();
+    core::initialize();
 }

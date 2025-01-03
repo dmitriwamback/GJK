@@ -22,16 +22,18 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace gjk {
+namespace core {
 GLFWwindow* window;
 }
+
 #include "object/render/shader.h"
 #include "object/camera.h"
 #include "object/cube.h"
 
-#include "gjk/gjk.h"
+#include "math/raycast.h"
+#include "math/gjk.h"
 
-namespace gjk {
+namespace core {
 
 
 void initialize() {
@@ -55,10 +57,12 @@ void initialize() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_PROGRAM_POINT_SIZE);
     
-    gjk::core::Camera::Initialize();
-    gjk::core::Shader shader = gjk::core::Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
-    gjk::core::Cube cube = gjk::core::Cube::Create();
-    glfwSetCursorPosCallback(window, gjk::core::cursor_position_callback);
+    Camera::Initialize();
+    Shader shader = Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
+    Cube cube = Cube::Create();
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    
+    float t = 0.0f;
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -75,20 +79,25 @@ void initialize() {
         float up = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS ? 0.05f : 0;
         float down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ? -0.05f : 0;
         
-        gjk::core::camera.Update(movement, up, down);
+        camera.Update(movement, up, down);
         
         shader.Use();
-        shader.SetMatrix4("projection", gjk::core::camera.projection);
-        shader.SetMatrix4("lookAt", gjk::core::camera.lookAt);
+        shader.SetMatrix4("projection", camera.projection);
+        shader.SetMatrix4("lookAt", camera.lookAt);
+                
+        Ray ray{camera.position, camera.mouseRayDirection};
         
-        if (gjk::core::math::CollideWithCamera(cube)) {
+        if (CollideWithCamera(cube)) {
             cube.color = glm::vec3(0.0f, 1.0f, 0.0f);
+            CameraCollisionResponse(cube);
+        }
+        else if (Raycast(ray, cube.GetColliderVertices(), cube.indices) != std::nullopt) {
+            cube.color = glm::vec3(0.0f, 0.0f, 1.0f);
         }
         else {
             cube.color = glm::vec3(1.0f);
         }
         cube.Render(shader);
-        
         
         cube.color = glm::vec3(1.0f, 0.0f, 0.0f);
         cube.Render(shader, GL_POINTS, true);

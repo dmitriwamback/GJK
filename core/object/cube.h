@@ -8,7 +8,7 @@
 #ifndef cube_h
 #define cube_h
 
-namespace gjk::core {
+namespace core {
 
 class Cube {
 public:
@@ -20,7 +20,7 @@ public:
     glm::vec3 position, scale, rotation, color;
     
     static Cube Create();
-    void Render(gjk::core::Shader shader, GLenum renderingType, bool identityMatrix);
+    void Render(Shader shader, GLenum renderingType, bool identityMatrix);
     std::vector<float> GetColliderVertices(bool withNormals);
 private:
     glm::mat4 CreateModelMatrix();
@@ -62,7 +62,7 @@ Cube Cube::Create() {
     cube.indices = indices;
     
     cube.position = glm::vec3(0.0f, 0.0f, 0.0f);
-    cube.rotation = glm::vec3(45.0f, 45.0f, 0.0f);
+    cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
     cube.scale = glm::vec3(2.0f, 11.0f, 1.0f);
     
     cube.color = glm::vec3(1.0f);
@@ -86,7 +86,7 @@ Cube Cube::Create() {
     return cube;
 }
 
-void Cube::Render(gjk::core::Shader shader, GLenum renderingType = GL_TRIANGLES, bool identityMatrix = false) {
+void Cube::Render(Shader shader, GLenum renderingType = GL_TRIANGLES, bool identityMatrix = false) {
     
     shader.Use();
     
