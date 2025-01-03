@@ -46,7 +46,7 @@ bool CollideWithCamera(gjk::core::Cube testCube) {
         
         glm::vec3 newPoint = support(projectedVertices, testCube.indices, direction) - gjk::core::camera.position;
         
-        if (glm::dot(newPoint, direction) <= 0.0001f) return false;
+        if (glm::dot(newPoint, direction) <= 0.01f) return false;
         
         simplex.push_back(newPoint);
         glm::vec3 ao = -simplex.back();
