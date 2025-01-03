@@ -35,7 +35,7 @@ bool CollideWithCamera(gjk::core::Cube testCube) {
     std::vector<glm::vec3> simplex;
     std::vector<float> projectedVertices = testCube.GetColliderVertices();
     
-    glm::vec3 supportVertex = support(projectedVertices, testCube.indices, direction) - (gjk::core::camera.position + direction * 0.01f);
+    glm::vec3 supportVertex = support(projectedVertices, testCube.indices, direction) - gjk::core::camera.position;
     simplex.push_back(supportVertex);
     direction = -supportVertex;
     
@@ -44,7 +44,7 @@ bool CollideWithCamera(gjk::core::Cube testCube) {
     
     while (iteration < MAX_ITERATIONS) {
         
-        glm::vec3 newPoint = support(projectedVertices, testCube.indices, direction) - (gjk::core::camera.position + direction * 0.01f);
+        glm::vec3 newPoint = support(projectedVertices, testCube.indices, direction) - gjk::core::camera.position;
         
         if (glm::dot(newPoint, direction) <= 0.0001f) return false;
         
