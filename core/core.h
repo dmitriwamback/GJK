@@ -53,6 +53,7 @@ void initialize() {
     glewExperimental = GL_TRUE;
     glewInit();
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_PROGRAM_POINT_SIZE);
     
     gjk::core::Camera::Initialize();
     gjk::core::Shader shader = gjk::core::Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
@@ -90,6 +91,7 @@ void initialize() {
         
         
         cube.color = glm::vec3(1.0f, 0.0f, 0.0f);
+        cube.Render(shader, GL_POINTS, true);
         cube.Render(shader, GL_LINES, true);
         
         glfwPollEvents();

@@ -17,6 +17,7 @@ public:
     
     float pitch;
     float yaw = 3.0f * 3.14159265358f/2.0f;
+    float radius = 0.5f;
     
     float lastMouseX, lastMouseY;
     

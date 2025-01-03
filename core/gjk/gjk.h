@@ -35,44 +35,74 @@ bool CollideWithCamera(gjk::core::Cube testCube) {
     std::vector<glm::vec3> simplex;
     std::vector<float> projectedVertices = testCube.GetColliderVertices();
     
-    glm::vec3 supportVertex = support(projectedVertices, testCube.indices, direction) - gjk::core::camera.position;
+    glm::vec3 supportVertex = support(projectedVertices, testCube.indices, direction) - (gjk::core::camera.position + direction * 0.01f);
     simplex.push_back(supportVertex);
     direction = -supportVertex;
     
-    const int MAX_ITERATIONS = 50;
+    const int MAX_ITERATIONS = 100;
     int iteration = 0;
     
     while (iteration < MAX_ITERATIONS) {
         
-        glm::vec3 newPoint = support(projectedVertices, testCube.indices, direction) - gjk::core::camera.position;
+        glm::vec3 newPoint = support(projectedVertices, testCube.indices, direction) - (gjk::core::camera.position + direction * 0.01f);
         
-        if (glm::dot(newPoint, direction) <= 0) return false;
+        if (glm::dot(newPoint, direction) <= 0.0001f) return false;
         
         simplex.push_back(newPoint);
-        
         glm::vec3 ao = -simplex.back();
-        
-        if (simplex.size() != 3) {
-            iteration++;
-            continue;
+                
+        if (simplex.size() == 2) {
+            
+            glm::vec3 ab = simplex[0] - simplex[1];
+            
+            if (glm::dot(ab, ao) > 0) {
+                direction = glm::cross(glm::cross(ab, ao), ab);
+            } else {
+                simplex.erase(simplex.begin());
+                direction = ao;
+            }
         }
-        
-        glm::vec3 ab = simplex[1] - simplex[2],
-                  ac = simplex[0] - simplex[2];
-        glm::vec3 abc = glm::cross(ab, ac);
-        
-        if (glm::dot(glm::cross(abc, ac), ao) > 0) {
-            simplex.erase(simplex.begin());
-            direction = glm::cross(ac, ao);
+        else if (simplex.size() == 3) {
+            
+            glm::vec3 ab = simplex[1] - simplex[2],
+                      ac = simplex[0] - simplex[2];
+            glm::vec3 abc = glm::cross(ab, ac);
+            
+            if (glm::dot(glm::cross(abc, ac), ao) > 0) {
+                simplex.erase(simplex.begin());
+                direction = glm::cross(ac, ao);
+            }
+            else if (glm::dot(glm::cross(ab, abc), ao) > 0) {
+                simplex.erase(simplex.begin() + 1);
+                direction = glm::cross(ab, ao);
+            }
+            else {
+                return true;
+            }
         }
-        else if (glm::dot(glm::cross(ab, abc), ao) > 0) {
-            simplex.erase(simplex.begin() + 1);
-            direction = glm::cross(ab, ao);
+        else if (simplex.size() == 4) {
+            
+            glm::vec3 ab = simplex[2] - simplex[3],
+                      ac = simplex[1] - simplex[3],
+                      ad = simplex[0] - simplex[3];
+            
+            glm::vec3 abc = glm::cross(ab, ac),
+                      acd = glm::cross(ac, ad),
+                      adb = glm::cross(ad, ab);
+            
+            if (glm::dot(abc, ao) > 0) {
+                simplex.erase(simplex.begin());
+                direction = abc;
+            } else if (glm::dot(acd, ao) > 0) {
+                simplex.erase(simplex.begin() + 1);
+                direction = acd;
+            } else if (glm::dot(adb, ao) > 0) {
+                simplex.erase(simplex.begin() + 2);
+                direction = adb;
+            } else {
+                return true;
+            }
         }
-        else {
-            return true;
-        }
-        direction = ao;
         
         iteration++;
     }

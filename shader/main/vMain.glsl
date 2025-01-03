@@ -17,4 +17,5 @@ void main() {
     vs_out.fragp = vec3(model * vec4(position, 1.0));
 
     gl_Position = projection * lookAt * model * vec4(position, 1.0);
+    gl_PointSize = 20.0;
 }
