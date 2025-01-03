@@ -21,6 +21,8 @@ public:
     float yaw = 3.0f * 3.14159265358f/2.0f;
     float radius = 0.5f;
     
+    float deltaScroll;
+    
     float lastMouseX, lastMouseY;
     
     int mouseButton = GLFW_MOUSE_BUTTON_RIGHT;
@@ -111,6 +113,11 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     
     camera.lastMouseX = xpos;
     camera.lastMouseY = ypos;
+    camera.deltaScroll = 0;
+}
+
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera.deltaScroll = yoffset;
 }
 
 }

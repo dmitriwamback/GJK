@@ -59,10 +59,16 @@ void initialize() {
     
     Camera::Initialize();
     Shader shader = Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
-    Cube cube = Cube::Create();
+    Cube cube = Cube::Create(), cube2 = Cube::Create();
+    
     glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetScrollCallback(window, scroll_callback);
     
     float t = 0.0f;
+    float scroll = 10.0f;
+    
+    cube.scale = glm::vec3(10.0f, 1.0f, 10.0f);
+    cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -87,6 +93,14 @@ void initialize() {
                 
         Ray ray{camera.position, camera.mouseRayDirection};
         
+        scroll += camera.deltaScroll / 5.0f;
+        if (scroll < 5.0f) scroll = 5.0f;
+        
+        //cube2.position = camera.mouseRayDirection * scroll + camera.position;
+        //cube2.color = glm::vec3(1.0f, 0.0f, 1.0f);
+        
+        cube.rotation.x = t;
+        
         if (CollideWithCamera(cube)) {
             cube.color = glm::vec3(0.0f, 1.0f, 0.0f);
             CameraCollisionResponse(cube);
@@ -97,11 +111,26 @@ void initialize() {
         else {
             cube.color = glm::vec3(1.0f);
         }
+        
+        /*
+        if (GJKCollision(cube, cube2)) {
+            cube.color = glm::vec3(1.0f, 1.0f, 0.0f);
+            cube2.color = glm::vec3(1.0f, 1.0f, 0.0f);
+        }
+        */
+        
         cube.Render(shader);
         
         cube.color = glm::vec3(1.0f, 0.0f, 0.0f);
         cube.Render(shader, GL_POINTS, true);
         cube.Render(shader, GL_LINES, true);
+        
+        cube2.Render(shader);
+        
+        cube2.color = glm::vec3(0.0f, 0.0f, 0.0f);
+        cube2.Render(shader, GL_POINTS, true);
+        cube2.Render(shader, GL_LINES, true);
+        t += 0.1f;
         
         glfwPollEvents();
         glfwSwapBuffers(window);
