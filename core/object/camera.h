@@ -166,6 +166,7 @@ std::vector<float> Camera::GetColliderVertices() {
         projectedVertices.push_back(projected.z);
     }
     return projectedVertices;
+    
 }
 
 glm::mat4 Camera::CreateModelMatrix() {
