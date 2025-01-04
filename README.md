@@ -9,7 +9,7 @@
     <li>Polygon-Polygon collision</li>
 </ul>
 
-# Theory
+# Theory for GJK
 ## 1. Minkowski Difference between two convex shapes $ A $ and $ B $ is given by:
 $$
 M(A, B) = A - B = \{ \mathbf{a} - \mathbf{b} \mid \mathbf{a} \in A, \mathbf{b} \in B \}
@@ -17,10 +17,11 @@ $$
 
 <p>Where:</p>
 
-$ A $ and $ B $ are convex shapes
+$A$ and $B$ are convex shapes
+
 <p></p>
 
-$ a $ and $ b $ are points on the boundaries of shapes $ A $ and $ B $
+$a$ and $b$ are points on the boundaries of shapes $A$ and $B$
 
 ## 2. Support function as defined by $ S(X, d) $ for convex shape $ X $:
 
@@ -46,3 +47,5 @@ $d⋅x$ is the dot product between the direction vector $d$ and point $x$
 <p></p>
 
 Such as for a 2D triangle formed by points $v_0$, $v_1$, $v_2$, the closest point is computed with dot products and cross products.
+
+# Theory for Raycasting
