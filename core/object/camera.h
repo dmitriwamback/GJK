@@ -27,8 +27,40 @@ public:
     
     int mouseButton = GLFW_MOUSE_BUTTON_RIGHT;
     
+    std::vector<uint32_t> indices = {
+        0, 2, 1, 0, 3, 2,  // Reversed (CW)
+
+        // Back face
+        5, 7, 4, 5, 6, 7,  // Reversed (CW)
+
+        // Left face
+        4, 3, 0, 4, 7, 3,  // Reversed (CW)
+
+        // Right face
+        1, 6, 5, 1, 2, 6,  // Reversed (CW)
+
+        // Top face
+        4, 1, 5, 4, 0, 1,  // Reversed (CW)
+
+        // Bottom face
+        3, 6, 2, 3, 7, 6   // Reversed (CW)
+    };
+    
+    std::vector<float> vertices = {
+        -0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+    };
+    
     static void Initialize();
     void Update(glm::vec4 movement, float up, float down);
+    std::vector<float> GetColliderVertices();
+    glm::mat4 CreateModelMatrix();
 };
 
 Camera camera;
@@ -118,6 +150,33 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera.deltaScroll = yoffset;
+}
+
+std::vector<float> Camera::GetColliderVertices() {
+    
+    glm::mat4 model = CreateModelMatrix();
+    
+    std::vector<float> projectedVertices = std::vector<float>();
+    
+    for (int i = 0; i < vertices.size()/3; i++) {
+        glm::vec3 vertex = glm::vec3(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
+        glm::vec3 projected = glm::vec3(model * glm::vec4(vertex, 1.0));
+        projectedVertices.push_back(projected.x);
+        projectedVertices.push_back(projected.y);
+        projectedVertices.push_back(projected.z);
+    }
+    return projectedVertices;
+}
+
+glm::mat4 Camera::CreateModelMatrix() {
+    
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 translationMatrix = glm::mat4(1.0f);
+    translationMatrix = glm::translate(translationMatrix, position);
+        
+    model = translationMatrix;
+    
+    return model;
 }
 
 }

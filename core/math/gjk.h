@@ -43,7 +43,7 @@ glm::vec3 Support(const std::vector<float>& vertices, const std::vector<uint32_t
 
 glm::vec3 Support(const std::vector<float>& verticesA, const std::vector<uint32_t>& indicesA, const std::vector<float>& verticesB, const std::vector<uint32_t>& indicesB, glm::mat4 modelA, glm::mat4 modelB, glm::vec3 direction) {
     
-    auto furthest = [](const std::vector<float>& vertices, const std::vector<uint32_t>& indices, const glm::vec3& direction) -> glm::vec3 {
+    auto furthest = [](const std::vector<float>& vertices, const std::vector<uint32_t>& indices, const glm::vec3& direction, glm::mat4 model) -> glm::vec3 {
         
         float maxDot = -FLT_MAX;
         glm::vec3 bestVertex;
@@ -60,10 +60,10 @@ glm::vec3 Support(const std::vector<float>& verticesA, const std::vector<uint32_
         return bestVertex;
     };
     
-    glm::vec3 pointA = furthest(verticesA, indicesA, glm::vec3(glm::inverse(modelA) * glm::vec4(direction, 0.0f)));
-    glm::vec3 pointB = furthest(verticesB, indicesB, glm::vec3(glm::inverse(modelB) * glm::vec4(-direction, 0.0f)));
+    glm::vec3 pointA = furthest(verticesA, indicesA, glm::vec3(glm::inverse(modelA) * glm::vec4(direction, 0.0f)), modelA);
+    glm::vec3 pointB = furthest(verticesB, indicesB, glm::vec3(glm::inverse(modelB) * glm::vec4(-direction, 0.0f)), modelB);
     
-    return pointA - pointB;
+    return glm::vec3(modelA * glm::vec4(pointA, 1.0f)) - glm::vec3(modelB * glm::vec4(pointB, 1.0f));
 }
 
 //------------------------------------------------------------------------------------------//
@@ -80,7 +80,7 @@ bool SimplexHandler(std::vector<glm::vec3>& simplex, glm::vec3& direction) {
         
         if (glm::dot(ab, ao) > 0) {
             direction = glm::cross(glm::cross(ab, ao), ab);
-        } 
+        }
         else {
             simplex.erase(simplex.begin());
             direction = ao;
@@ -137,7 +137,7 @@ bool SimplexHandler(std::vector<glm::vec3>& simplex, glm::vec3& direction) {
 
 bool GJKCollision(Cube cube1, Cube cube2) {
     
-    glm::vec3 direction = glm::normalize(cube1.position - cube2.position);
+    glm::vec3 direction = glm::vec3(1.0f, 0.0f, 0.0f);
     
     std::vector<float> projectedVerticesCube1 = cube1.GetColliderVertices();
     std::vector<float> projectedVerticesCube2 = cube2.GetColliderVertices();
@@ -150,7 +150,7 @@ bool GJKCollision(Cube cube1, Cube cube2) {
     for (int iteration = 0; iteration < 100; iteration++) {
         
         glm::vec3 newPoint = Support(projectedVerticesCube1, cube1.indices, projectedVerticesCube2, cube2.indices, cube1.CreateModelMatrix(), cube2.CreateModelMatrix(), direction);
-        if (glm::dot(newPoint, direction) <= 0.001f) {
+        if (glm::dot(newPoint, direction) <= 1e-5f) {
             return false;
         }
 
@@ -168,28 +168,56 @@ bool GJKCollision(Cube cube1, Cube cube2) {
 // Colliding with the camera
 //------------------------------------------------------------------------------------------//
 
-bool CollideWithCamera(Cube testCube) {
+bool CollideWithCameraRaycast(Cube testCube) {
     
-    glm::vec3 direction = glm::normalize(camera.position);
-    std::vector<glm::vec3> simplex;
-    std::vector<float> projectedVertices = testCube.GetColliderVertices();
+    Ray ray{camera.position, camera.velocity};
+    std::optional<Intersection> intersect = Raycast(ray, testCube.GetColliderVertices(), testCube.indices);
     
-    glm::vec3 supportVertex = Support(projectedVertices, testCube.indices, direction, testCube.CreateModelMatrix()) - camera.position;
-    simplex.push_back(supportVertex);
-    direction = -supportVertex;
+    if (intersect == std::nullopt) return false;
     
-    const int MAX_ITERATIONS = 100;
-    
-    for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-        
-        glm::vec3 newPoint = Support(projectedVertices, testCube.indices, direction, testCube.CreateModelMatrix()) - camera.position;
-        if (glm::dot(newPoint, direction) <= 0.0000000001f) return false;
-        
-        simplex.push_back(newPoint);
-        if (SimplexHandler(simplex, direction)) return true;
+    if (intersect->distance <= 5.0f) {
+        float depth = glm::dot(intersect->intersectionPoint - camera.position, intersect->normal);
+        camera.position -= intersect->normal * depth * 0.3f;
     }
     
-    return false;
+    return true;
+}
+
+bool CollideWithCameraGJK(Cube testCube) {
+    
+    glm::vec3 direction = glm::normalize(camera.position);  // Initial direction along the camera's facing direction
+        
+    std::vector<float> cubeVertices = testCube.GetColliderVertices();
+    std::vector<float> cameraVertices = camera.GetColliderVertices();  // Assuming you have a camera collider (e.g., a sphere or capsule)
+    
+    std::vector<glm::vec3> simplex;
+    
+    // Support function for the camera and cube, finding the farthest points in the given direction.
+    glm::vec3 supportCube = Support(cubeVertices, testCube.indices, direction, testCube.CreateModelMatrix());
+    glm::vec3 supportCamera = Support(cameraVertices, camera.indices, -direction, camera.CreateModelMatrix()); // Use negative direction for camera
+    
+    glm::vec3 supportPoint = supportCube - supportCamera;
+    
+    direction = -supportPoint; // The initial direction is now set
+    
+    for (int iteration = 0; iteration < 100; iteration++) {
+        glm::vec3 newPoint = Support(cubeVertices, testCube.indices, direction, testCube.CreateModelMatrix()) -
+                             Support(cameraVertices, camera.indices, -direction, camera.CreateModelMatrix());
+        
+        // If dot product is less than a small threshold, it means we've gone far enough to determine there's no collision.
+        if (glm::dot(newPoint, direction) <= 1e-5f) {
+            return false;  // No collision detected, exit early.
+        }
+
+        simplex.push_back(newPoint);
+
+        // Handle the simplex (2D or 3D simplex handling depending on the number of points)
+        if (SimplexHandler(simplex, direction)) {
+            return true;  // Collision detected.
+        }
+    }
+    
+    return false;  // If we exit the loop without finding a collision.
 }
 
 

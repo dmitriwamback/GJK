@@ -67,8 +67,9 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube.scale = glm::vec3(10.0f, 1.0f, 10.0f);
+    cube.scale = glm::vec3(1.0f, 10.0f, 1.0f);
     cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
+    cube.position = glm::vec3(2.0f, 0.0f, 0.0f);
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -85,39 +86,27 @@ void initialize() {
         float up = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS ? 0.05f : 0;
         float down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ? -0.05f : 0;
         
+        if (CollideWithCameraGJK(cube)) {
+            cube.color = glm::vec3(0.0f, 1.0f, 0.0f);
+        }
         camera.Update(movement, up, down);
-        
-        shader.Use();
-        shader.SetMatrix4("projection", camera.projection);
-        shader.SetMatrix4("lookAt", camera.lookAt);
                 
         Ray ray{camera.position, camera.mouseRayDirection};
         
         scroll += camera.deltaScroll / 5.0f;
         if (scroll < 5.0f) scroll = 5.0f;
         
-        //cube2.position = camera.mouseRayDirection * scroll + camera.position;
-        //cube2.color = glm::vec3(1.0f, 0.0f, 1.0f);
+        cube2.position = camera.mouseRayDirection * scroll + camera.position;
+        cube2.color = glm::vec3(1.0f, 0.0f, 1.0f);
         
-        cube.rotation.x = t;
-        
-        if (CollideWithCamera(cube)) {
-            cube.color = glm::vec3(0.0f, 1.0f, 0.0f);
-            CameraCollisionResponse(cube);
-        }
-        else if (Raycast(ray, cube.GetColliderVertices(), cube.indices) != std::nullopt) {
-            cube.color = glm::vec3(0.0f, 0.0f, 1.0f);
-        }
-        else {
-            cube.color = glm::vec3(1.0f);
-        }
-        
-        /*
         if (GJKCollision(cube, cube2)) {
             cube.color = glm::vec3(1.0f, 1.0f, 0.0f);
             cube2.color = glm::vec3(1.0f, 1.0f, 0.0f);
         }
-        */
+        
+        shader.Use();
+        shader.SetMatrix4("projection", camera.projection);
+        shader.SetMatrix4("lookAt", camera.lookAt);
         
         cube.Render(shader);
         

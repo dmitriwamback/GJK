@@ -19,6 +19,7 @@ struct Ray {
 
 struct Intersection {
     glm::vec3 intersectionPoint;
+    glm::vec3 normal;
     float distance;
 };
 
@@ -42,7 +43,7 @@ std::optional<Intersection> RayIntersectTriangle(const Ray& ray, const glm::vec3
     
     float t = f * glm::dot(edge2, q);
     if (t > 0.0000001f) {
-        return Intersection{ray.origin + ray.direction * t, t};
+        return Intersection{ray.origin + ray.direction * t, glm::vec3(0.0f), t};
     }
     
     return std::nullopt;
@@ -61,6 +62,7 @@ std::optional<Intersection> Raycast(const Ray& ray, const std::vector<float>& ve
         if (intersection) {
             if (!closest || intersection->distance < closest->distance) {
                 closest = intersection;
+                closest->normal = glm::normalize(glm::cross(pointB - pointA, pointC - pointA));
             }
         }
     }
