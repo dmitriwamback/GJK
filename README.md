@@ -10,7 +10,7 @@
 </ul>
 
 # Theory for GJK
-## 1. Minkowski Difference between two convex shapes $ A $ and $ B $ is given by:
+## 1. Minkowski Difference between two convex shapes $A$ and $B$ is given by:
 $$
 M(A, B) = A - B = \{ \mathbf{a} - \mathbf{b} \mid \mathbf{a} \in A, \mathbf{b} \in B \}
 $$
@@ -23,7 +23,7 @@ $A$ and $B$ are convex shapes
 
 $a$ and $b$ are points on the boundaries of shapes $A$ and $B$
 
-## 2. Support function as defined by $ S(X, d) $ for convex shape $ X $:
+## 2. Support function as defined by $S(X, d)$ for convex shape $X$:
 
 $$ S(X, d) = arg max[x \in X]d⋅x $$
 
