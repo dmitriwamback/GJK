@@ -68,7 +68,7 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube.scale = glm::vec3(10.0f, 1.0f, 10.0f);
+    cube.scale = glm::vec3(10.0f, 1.0f, 1.0f);
     cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
     cube.position = glm::vec3(1.0f, 0.0f, 0.0f);
     
@@ -96,6 +96,8 @@ void initialize() {
         
         cube2.position = camera.mouseRayDirection * 10.0f + camera.position;
         cube2.color = glm::vec3(1.0f, 0.0f, 1.0f);
+        
+        cube.rotation = glm::vec3(0.0f, t * 100.0f, 0.0f);
         
         if (GJKCollision(cube, cube2)) {
             cube.color = glm::vec3(1.0f, 1.0f, 0.0f);

@@ -210,7 +210,7 @@ bool GJKCollision(Cube a, Cube b) {
         glm::vec3 vb = Support(colliderVerticesB, -direction);
         support = va - vb;
 
-        RenderDebugLine(vb, va, shader);
+        RenderDebugLine(va, vb, shader);
 
         if (glm::dot(support, direction) <= 0.0f) {
             return false;
