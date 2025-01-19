@@ -35,8 +35,17 @@ Shader shader;
 
 #include "math/raycast.h"
 #include "math/gjk.h"
+#include "math/epa.h"
 
 namespace core {
+
+void renderDebugCube(Cube cube) {
+    
+    cube.Render(shader);
+    
+    cube.color = glm::vec3(0.0f);
+    cube.Render(shader, GL_LINES, true);
+}
 
 void initialize() {
     
@@ -127,20 +136,10 @@ void initialize() {
         shader.SetMatrix4("projection", camera.projection);
         shader.SetMatrix4("lookAt", camera.lookAt);
         
-        cube.Render(shader);
+        renderDebugCube(cube);
+        renderDebugCube(cube2);
+        renderDebugCube(cube3);
         
-        cube.color = glm::vec3(0.0f);
-        cube.Render(shader, GL_LINES, true);
-        
-        cube2.Render(shader);
-        
-        cube2.color = glm::vec3(0.0f);
-        cube2.Render(shader, GL_LINES, true);
-        
-        cube3.Render(shader);
-        
-        cube3.color = glm::vec3(0.0f);
-        cube3.Render(shader, GL_LINES, true);
         t += 0.003f;
         
         glfwPollEvents();

@@ -13,7 +13,7 @@ namespace core {
 uint32_t debugLineVertexArrayObject;
 uint32_t debugLineVertexBufferObject;
 
-bool debugLineInitialized;
+bool debugLineInitialized = false;
 
 void RenderDebugLine(glm::vec3 a, glm::vec3 b, Shader shader) {
     
@@ -22,9 +22,9 @@ void RenderDebugLine(glm::vec3 a, glm::vec3 b, Shader shader) {
         b.x, b.y, b.z, 0.0f, 0.0f, 0.0f,
     };
     
-    //std::cout << "-------------------------------------------------------------\n";
+    std::cout << "--------------------------DEBUG LINE VERTICES--------------------------\n";
     for (int i = 0; i < vertices.size()/6; i++) {
-        //std::cout << vertices[i * 6] << ", " << vertices[i * 6 + 1] << ", " << vertices[i * 6 + 2] << "\n";
+        std::cout << vertices[i * 6] << ", " << vertices[i * 6 + 1] << ", " << vertices[i * 6 + 2] << "\n";
     }
     
     if (!debugLineInitialized) {
@@ -50,7 +50,14 @@ void RenderDebugLine(glm::vec3 a, glm::vec3 b, Shader shader) {
     shader.SetMatrix4("projection", camera.projection);
     shader.SetMatrix4("lookAt", camera.lookAt);
     
+    glm::mat4 model = glm::mat4(1.0f);
+    shader.SetMatrix4("model", model);
+    
+    glDrawArrays(GL_POINTS, 0, 2);
     glDrawArrays(GL_LINES, 0, 2);
+    
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 }
 
