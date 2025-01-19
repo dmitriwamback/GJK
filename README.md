@@ -6,7 +6,8 @@
     <li>Polygon-Camera collision ✓</li>
     <li>Collsions with raycasting ✓</li>
     <li>Mouse direction/ray collision ✓</li>
-    <li>Polygon-Polygon collision</li>
+    <li>Polygon-Polygon collision ✓</li>
+    <li>EPA</li>
 </ul>
 
 # Theory for GJK
