@@ -210,7 +210,36 @@ bool GJKCollision(Cube a, Cube b) {
         glm::vec3 vb = Support(colliderVerticesB, -direction);
         support = va - vb;
 
-        RenderDebugLine(va, vb, shader);
+        if (glm::dot(support, direction) <= 0.0f) {
+            return false;
+        }
+
+        simplex.pushFront(support);
+
+        if (HandleSimplex(simplex, direction)) {
+            return true;
+        }
+    }
+
+    std::cout << "Terminated: Max iterations reached. No collision detected.\n";
+    return false;
+}
+
+bool GJKCollisionWithCamera(Cube a) {
+    std::vector<float> colliderVerticesA = a.GetColliderVertices();
+    std::vector<float> colliderVerticesB = camera.GetColliderVertices();
+    
+    glm::vec3 support = Support(colliderVerticesA, glm::vec3(1.0f, 0.0f, 0.0f)) - Support(colliderVerticesB, glm::vec3(1.0f, 0.0f, 0.0f));
+    
+    Simplex simplex;
+    simplex.pushFront(support);
+    
+    glm::vec3 direction = -support;
+    
+    for (int i = 0; i < 100; i++) {
+        glm::vec3 va = Support(colliderVerticesA,  direction);
+        glm::vec3 vb = Support(colliderVerticesB, -direction);
+        support = va - vb;
 
         if (glm::dot(support, direction) <= 0.0f) {
             return false;

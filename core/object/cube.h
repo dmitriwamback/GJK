@@ -15,7 +15,7 @@ public:
     std::vector<float> vertices;
     std::vector<uint32_t> indices;
     
-    uint32_t vao, vbo, ibo;
+    uint32_t vao, vbo;
     
     glm::vec3 position, scale, rotation, color;
     
@@ -29,36 +29,51 @@ Cube Cube::Create() {
     Cube cube = Cube();
         
     std::vector<float> vertices = {
-        -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-         1.0f,  1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-         1.0f, -1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-    };
-    std::vector<uint32_t> indices = {
-        0, 2, 1, 0, 3, 2,  // Reversed (CW)
-
-        // Back face
-        5, 7, 4, 5, 6, 7,  // Reversed (CW)
-
-        // Left face
-        4, 3, 0, 4, 7, 3,  // Reversed (CW)
-
-        // Right face
-        1, 6, 5, 1, 2, 6,  // Reversed (CW)
-
-        // Top face
-        4, 1, 5, 4, 0, 1,  // Reversed (CW)
-
-        // Bottom face
-        3, 6, 2, 3, 7, 6   // Reversed (CW)
+        -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+        // front face
+        -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+        // left face
+        -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+        -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+        -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+        -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+        -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+        -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+        // right face
+         1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+         1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+         1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+         1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+         1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+         1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+        // bottom face
+        -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+         1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+         1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+         1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+        -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+        -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+        // top face
+        -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+         1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f,
+         1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+         1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
     };
     
     cube.vertices = vertices;
-    cube.indices = indices;
+    cube.indices = std::vector<uint32_t>();
     
     cube.position = glm::vec3(0.0f, 0.0f, 0.0f);
     cube.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -78,10 +93,6 @@ Cube Cube::Create() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     
-    glGenBuffers(1, &cube.ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube.ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &cube.indices[0], GL_STATIC_DRAW);
-    
     return cube;
 }
 
@@ -94,9 +105,7 @@ void Cube::Render(Shader shader, GLenum renderingType = GL_TRIANGLES, bool ident
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices[0], GL_STATIC_DRAW);
+
     
     if (identityMatrix) {
         std::vector<float> projectedVertices = GetColliderVertices(true);
@@ -111,7 +120,7 @@ void Cube::Render(Shader shader, GLenum renderingType = GL_TRIANGLES, bool ident
     shader.SetMatrix4("model", model);
     shader.SetVector3("color", color);
     
-    glDrawElements(renderingType, indices.size(), GL_UNSIGNED_INT, nullptr);
+    glDrawArrays(renderingType, 0, 36);
 }
 
 std::vector<float> Cube::GetColliderVertices(bool withNormals = false) {

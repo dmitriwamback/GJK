@@ -13,7 +13,7 @@ out prop {
 } vs_out;
 
 void main() {
-    vs_out.normal = transpose(inverse(mat3(model))) * normal;
+    vs_out.normal = normalize(transpose(inverse(mat3(model))) * normal);
     vs_out.fragp = vec3(model * vec4(position, 1.0));
 
     gl_Position = projection * lookAt * model * vec4(position, 1.0);

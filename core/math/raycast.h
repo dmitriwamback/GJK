@@ -53,16 +53,46 @@ std::optional<Intersection> Raycast(const Ray& ray, const std::vector<float>& ve
     
     std::optional<Intersection> closest;
     
-    for (size_t i = 0; i < indices.size(); i += 3) {
-        glm::vec3 pointA = glm::vec3(vertices[indices[i] * 3], vertices[indices[i] * 3 + 1], vertices[indices[i] * 3 + 2]);
-        glm::vec3 pointB = glm::vec3(vertices[indices[i + 1] * 3], vertices[indices[i + 1] * 3 + 1], vertices[indices[i + 1] * 3 + 2]);
-        glm::vec3 pointC = glm::vec3(vertices[indices[i + 2] * 3], vertices[indices[i + 2] * 3 + 1], vertices[indices[i + 2] * 3 + 2]);
-        
-        auto intersection = RayIntersectTriangle(ray, pointA, pointB, pointC);
-        if (intersection) {
-            if (!closest || intersection->distance < closest->distance) {
-                closest = intersection;
-                closest->normal = glm::normalize(glm::cross(pointB - pointA, pointC - pointA));
+    if (indices.size() != 0) {
+        for (size_t i = 0; i < indices.size(); i += 3) {
+            glm::vec3 pointA = glm::vec3(vertices[indices[i] * 3], vertices[indices[i] * 3 + 1], vertices[indices[i] * 3 + 2]);
+            glm::vec3 pointB = glm::vec3(vertices[indices[i + 1] * 3], vertices[indices[i + 1] * 3 + 1], vertices[indices[i + 1] * 3 + 2]);
+            glm::vec3 pointC = glm::vec3(vertices[indices[i + 2] * 3], vertices[indices[i + 2] * 3 + 1], vertices[indices[i + 2] * 3 + 2]);
+            
+            auto intersection = RayIntersectTriangle(ray, pointA, pointB, pointC);
+            if (intersection) {
+                if (!closest || intersection->distance < closest->distance) {
+                    closest = intersection;
+                    closest->normal = glm::normalize(glm::cross(pointB - pointA, pointC - pointA));
+                }
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < vertices.size()/18; i++) {
+            
+            glm::vec3 pointA = glm::vec3(vertices[i * 18], vertices[i * 18 + 1], vertices[i * 18 + 2]);
+            glm::vec3 pointB = glm::vec3(vertices[i * 18 + 3], vertices[i * 18 + 4], vertices[i * 18 + 5]);
+            glm::vec3 pointC = glm::vec3(vertices[i * 18 + 6], vertices[i * 18 + 7], vertices[i * 18 + 8]);
+            
+            auto intersection = RayIntersectTriangle(ray, pointA, pointB, pointC);
+            if (intersection) {
+                if (!closest || intersection->distance < closest->distance) {
+                    closest = intersection;
+                    closest->normal = glm::normalize(glm::cross(pointB - pointA, pointC - pointA));
+                }
+            }
+            
+            glm::vec3 pointA2 = glm::vec3(vertices[i * 18 + 9], vertices[i * 18 + 10], vertices[i * 18 + 11]);
+            glm::vec3 pointB2 = glm::vec3(vertices[i * 18 + 12], vertices[i * 18 + 13], vertices[i * 18 + 14]);
+            glm::vec3 pointC2 = glm::vec3(vertices[i * 18 + 15], vertices[i * 18 + 16], vertices[i * 18 + 17]);
+            
+            intersection = RayIntersectTriangle(ray, pointA2, pointB2, pointC2);
+            if (intersection) {
+                if (!closest || intersection->distance < closest->distance) {
+                    closest = intersection;
+                    closest->normal = glm::normalize(glm::cross(pointB2 - pointA2, pointC2 - pointA2));
+                }
             }
         }
     }

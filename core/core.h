@@ -60,7 +60,7 @@ void initialize() {
     glEnable(GL_PROGRAM_POINT_SIZE);
     
     Camera::Initialize();
-    Cube cube = Cube::Create(), cube2 = Cube::Create();
+    Cube cube = Cube::Create(), cube2 = Cube::Create(), cube3 = Cube::Create();
     
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -68,9 +68,15 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube.scale = glm::vec3(10.0f, 1.0f, 1.0f);
+    cube.scale = glm::vec3(10.0f, 1.0f, 12.0f);
     cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
     cube.position = glm::vec3(1.0f, 0.0f, 0.0f);
+    cube.color = glm::vec3(0.8f);
+    
+    cube3.scale = glm::vec3(10.0f, 1.0f, 12.0f);
+    cube3.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
+    cube3.position = glm::vec3(0.0f, 0.0f, -40.0f);
+    cube3.color = glm::vec3(0.8f);
     
     shader = Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
     
@@ -95,13 +101,26 @@ void initialize() {
         if (scroll < 5.0f) scroll = 5.0f;
         
         cube2.position = camera.mouseRayDirection * 10.0f + camera.position;
-        cube2.color = glm::vec3(1.0f, 0.0f, 1.0f);
+        cube2.color = glm::vec3(0.8f);
         
         cube.rotation = glm::vec3(0.0f, t * 100.0f, 0.0f);
+        cube.color = glm::vec3(0.8f);
+        
+        cube3.color = glm::vec3(0.8f);
         
         if (GJKCollision(cube, cube2)) {
-            cube.color = glm::vec3(1.0f, 1.0f, 0.0f);
-            cube2.color = glm::vec3(1.0f, 1.0f, 1.0f);
+            cube.color = glm::vec3(0.9f, 0.0f, 0.0f);
+            cube2.color = glm::vec3(0.9f, 0.0f, 0.0f);
+        }
+        if (GJKCollisionWithCamera(cube)) {
+            cube.color = glm::vec3(0.9f, 0.0f, 0.0f);
+        }
+        
+        Ray ray{};
+        ray.origin = camera.position;
+        ray.direction = camera.mouseRayDirection;
+        if (Raycast(ray, cube3.GetColliderVertices(), cube3.indices)) {
+            cube3.color = glm::vec3(0.0f, 0.0f, 0.9f);
         }
         
         shader.Use();
@@ -110,15 +129,18 @@ void initialize() {
         
         cube.Render(shader);
         
-        cube.color = glm::vec3(1.0f, 0.0f, 0.0f);
-        cube.Render(shader, GL_POINTS, true);
+        cube.color = glm::vec3(0.0f);
         cube.Render(shader, GL_LINES, true);
         
         cube2.Render(shader);
         
-        cube2.color = glm::vec3(0.0f, 0.0f, 0.0f);
-        cube2.Render(shader, GL_POINTS, true);
+        cube2.color = glm::vec3(0.0f);
         cube2.Render(shader, GL_LINES, true);
+        
+        cube3.Render(shader);
+        
+        cube3.color = glm::vec3(0.0f);
+        cube3.Render(shader, GL_LINES, true);
         t += 0.003f;
         
         glfwPollEvents();
