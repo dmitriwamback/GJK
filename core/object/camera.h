@@ -140,9 +140,6 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     glm::vec3 rayDirection = glm::normalize(glm::vec3(farWorld) - glm::vec3(nearWorld));
     camera.mouseRayDirection = glm::normalize(glm::vec3(glm::inverse(camera.lookAt) * glm::vec4(rayDirection, 0.0f)));
     
-    std::cout << camera.pitch << " " << camera.yaw << '\n';
-    std::cout << camera.position.x << " " << camera.position.y << " " << camera.position.z << '\n';
-    
     camera.lastMouseX = xpos;
     camera.lastMouseY = ypos;
     camera.deltaScroll = 0;

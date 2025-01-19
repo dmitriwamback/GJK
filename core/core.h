@@ -22,11 +22,14 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace core {
-GLFWwindow* window;
-}
 
 #include "object/render/shader.h"
+
+namespace core {
+GLFWwindow* window;
+Shader shader;
+}
+
 #include "object/camera.h"
 #include "object/cube.h"
 
@@ -34,7 +37,6 @@ GLFWwindow* window;
 #include "math/gjk.h"
 
 namespace core {
-
 
 void initialize() {
     
@@ -58,7 +60,6 @@ void initialize() {
     glEnable(GL_PROGRAM_POINT_SIZE);
     
     Camera::Initialize();
-    Shader shader = Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
     Cube cube = Cube::Create(), cube2 = Cube::Create();
     
     glfwSetCursorPosCallback(window, cursor_position_callback);
@@ -67,9 +68,11 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube.scale = glm::vec3(1.0f, 10.0f, 1.0f);
+    cube.scale = glm::vec3(10.0f, 1.0f, 10.0f);
     cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
-    cube.position = glm::vec3(2.0f, 0.0f, 0.0f);
+    cube.position = glm::vec3(1.0f, 0.0f, 0.0f);
+    
+    shader = Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -86,22 +89,17 @@ void initialize() {
         float up = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS ? 0.05f : 0;
         float down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ? -0.05f : 0;
         
-        if (CollideWithCameraGJK(cube)) {
-            cube.color = glm::vec3(0.0f, 1.0f, 0.0f);
-        }
         camera.Update(movement, up, down);
-                
-        Ray ray{camera.position, camera.mouseRayDirection};
-        
+                        
         scroll += camera.deltaScroll / 5.0f;
         if (scroll < 5.0f) scroll = 5.0f;
         
-        cube2.position = camera.mouseRayDirection * scroll + camera.position;
+        cube2.position = camera.mouseRayDirection * 10.0f + camera.position;
         cube2.color = glm::vec3(1.0f, 0.0f, 1.0f);
         
         if (GJKCollision(cube, cube2)) {
             cube.color = glm::vec3(1.0f, 1.0f, 0.0f);
-            cube2.color = glm::vec3(1.0f, 1.0f, 0.0f);
+            cube2.color = glm::vec3(1.0f, 1.0f, 1.0f);
         }
         
         shader.Use();
@@ -119,7 +117,7 @@ void initialize() {
         cube2.color = glm::vec3(0.0f, 0.0f, 0.0f);
         cube2.Render(shader, GL_POINTS, true);
         cube2.Render(shader, GL_LINES, true);
-        t += 0.1f;
+        t += 0.003f;
         
         glfwPollEvents();
         glfwSwapBuffers(window);
