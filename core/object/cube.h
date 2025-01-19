@@ -122,8 +122,8 @@ void Cube::Render(Shader shader, GLenum renderingType = GL_TRIANGLES, bool ident
     
     glDrawArrays(renderingType, 0, 36);
     
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 
 std::vector<float> Cube::GetColliderVertices(bool withNormals = false) {

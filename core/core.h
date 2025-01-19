@@ -34,6 +34,7 @@ Shader shader;
 #include "object/cube.h"
 
 #include "math/raycast.h"
+#include "math/simplex.h"
 #include "math/gjk.h"
 #include "math/epa.h"
 
@@ -77,7 +78,7 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube.scale = glm::vec3(10.0f, 1.0f, 12.0f);
+    cube.scale = glm::vec3(10.0f, 1.0f, 1.0f);
     cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
     cube.position = glm::vec3(1.0f, 0.0f, 0.0f);
     cube.color = glm::vec3(0.8f);
@@ -112,7 +113,7 @@ void initialize() {
         cube2.position = camera.mouseRayDirection * 10.0f + camera.position;
         cube2.color = glm::vec3(0.8f);
         
-        cube.rotation = glm::vec3(0.0f, t * 100.0f, 0.0f);
+        cube.rotation = glm::vec3(t * 10.0f, 0.0f, 45.0f + t * 10.0f);
         cube.color = glm::vec3(0.8f);
         
         cube3.color = glm::vec3(0.8f);
@@ -128,7 +129,8 @@ void initialize() {
         Ray ray{};
         ray.origin = camera.position;
         ray.direction = camera.mouseRayDirection;
-        if (Raycast(ray, cube3.GetColliderVertices(), cube3.indices)) {
+        std::optional<Intersection> intersect = Raycast(ray, cube3.GetColliderVertices(), cube3.indices);
+        if (intersect) {
             cube3.color = glm::vec3(0.0f, 0.0f, 0.9f);
         }
         
@@ -140,7 +142,7 @@ void initialize() {
         renderDebugCube(cube2);
         renderDebugCube(cube3);
         
-        t += 0.003f;
+        t += 0.01f;
         
         glfwPollEvents();
         glfwSwapBuffers(window);

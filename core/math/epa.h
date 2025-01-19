@@ -10,8 +10,7 @@
 
 namespace core {
 
-bool EPA() {
-    
+bool EPA(Cube a, Cube b) {
     return false;
 }
 
