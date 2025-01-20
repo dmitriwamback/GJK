@@ -53,3 +53,5 @@ Such as for a 2D triangle formed by points $v_0$, $v_1$, $v_2$, the closest poin
 [![GJK Algorithm Test](https://img.youtube.com/vi/et7qVVCosnA/0.jpg)](https://www.youtube.com/watch?v=et7qVVCosnA)
 
 # Theory for Raycasting
+
+# Expanding Polytope Algorithm (EPA)
