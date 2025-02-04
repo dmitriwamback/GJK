@@ -79,7 +79,7 @@ collision EPA(Simplex& simplex, std::vector<float> colliderA, std::vector<float>
     glm::vec3 min;
     float mindst = FLT_MAX;
     
-    while (mindst == FLT_MAX) {
+    for(int k = 0; k < 100; k++) {
         min = glm::vec3(normals[minTriangle]);
         mindst = normals[minTriangle].w;
         

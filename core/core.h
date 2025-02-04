@@ -79,7 +79,7 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube.scale = glm::vec3(10.0f, 0.05f, 10.0f);
+    cube.scale = glm::vec3(10.0f, 0.5f, 10.0f);
     cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
     cube.position = glm::vec3(1.0f, 0.0f, 0.0f);
     cube.color = glm::vec3(0.8f);
