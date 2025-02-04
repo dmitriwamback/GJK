@@ -21,7 +21,7 @@ public:
     float yaw = 3.0f * 3.14159265358f/2.0f;
     float radius = 0.5f;
     
-    float deltaScroll;
+    float deltaScroll, lastYScroll;
     
     float lastMouseX, lastMouseY;
     
@@ -146,7 +146,8 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 }
 
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    camera.deltaScroll = yoffset;
+    camera.deltaScroll = camera.lastYScroll - yoffset;
+    camera.lastYScroll = yoffset;
 }
 
 std::vector<float> Camera::GetColliderVertices() {

@@ -35,8 +35,9 @@ Shader shader;
 
 #include "math/raycast.h"
 #include "math/simplex.h"
-#include "math/gjk.h"
+#include "math/support.h"
 #include "math/epa.h"
+#include "math/gjk.h"
 
 namespace core {
 
@@ -78,10 +79,13 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube.scale = glm::vec3(10.0f, 1.0f, 1.0f);
+    cube.scale = glm::vec3(10.0f, 0.05f, 10.0f);
     cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
     cube.position = glm::vec3(1.0f, 0.0f, 0.0f);
     cube.color = glm::vec3(0.8f);
+    
+    cube2.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
+    cube2.position = glm::vec3(0.0f, 10.0f, 0.0f);
     
     cube3.scale = glm::vec3(10.0f, 1.0f, 12.0f);
     cube3.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
@@ -107,24 +111,16 @@ void initialize() {
         
         camera.Update(movement, up, down);
                         
-        scroll += camera.deltaScroll / 5.0f;
+        scroll = camera.lastYScroll;
         if (scroll < 5.0f) scroll = 5.0f;
         
         cube2.position = camera.mouseRayDirection * 10.0f + camera.position;
         cube2.color = glm::vec3(0.8f);
         
-        cube.rotation = glm::vec3(t * 10.0f, 0.0f, 45.0f + t * 10.0f);
+        cube.rotation = glm::vec3(45.0f, 0.0f, 135.0f);
         cube.color = glm::vec3(0.8f);
         
         cube3.color = glm::vec3(0.8f);
-        
-        if (GJKCollision(cube, cube2)) {
-            cube.color = glm::vec3(0.9f, 0.0f, 0.0f);
-            cube2.color = glm::vec3(0.9f, 0.0f, 0.0f);
-        }
-        if (GJKCollisionWithCamera(cube)) {
-            cube.color = glm::vec3(0.9f, 0.0f, 0.0f);
-        }
         
         Ray ray{};
         ray.origin = camera.position;
@@ -132,6 +128,23 @@ void initialize() {
         std::optional<Intersection> intersect = Raycast(ray, cube3.GetColliderVertices(), cube3.indices);
         if (intersect) {
             cube3.color = glm::vec3(0.0f, 0.0f, 0.9f);
+            cube2.position = intersect->intersectionPoint;
+        }
+        
+        collision col = GJKCollision(cube, cube2);
+        if (col.collided) {
+            
+            if (glm::dot(col.normal, cube2.position - cube.position) < 0) {
+                col.normal = -col.normal;
+            }
+            
+            cube.color = glm::vec3(0.9f, 0.0f, 0.0f);
+            cube2.position += col.normal*col.depth;
+            
+            cube2.color = glm::vec3(0.9f, 0.0f, 0.0f);
+        }
+        if (GJKCollisionWithCamera(cube)) {
+            cube.color = glm::vec3(0.9f, 0.0f, 0.0f);
         }
         
         shader.Use();

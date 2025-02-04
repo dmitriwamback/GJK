@@ -13,7 +13,7 @@ namespace core {
 class Simplex {
 private:
     std::array<glm::vec3, 4> points;
-    unsigned simplexSize;
+    int simplexSize;
     
 public:
     Simplex() : simplexSize(0) {}
@@ -29,7 +29,7 @@ public:
     
     void pushFront(glm::vec3 point) {
         points = {point, points[0], points[1], points[2]};
-        simplexSize = std::min(simplexSize + 1, 4u);
+        simplexSize = std::min(simplexSize + 1, 4);
     }
     unsigned size() const { return simplexSize; }
     auto begin() const { return points.begin(); }
