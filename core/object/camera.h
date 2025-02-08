@@ -84,7 +84,7 @@ void Camera::Update(glm::vec4 movement, float up, float down) {
     
     glm::vec3 motion = lookDirection;
     
-    velocity = (motion * (forward + backward) * 2.0f) - (glm::normalize(glm::cross(motion, glm::vec3(0.0f, 1.0f, 0.0f))) * (left + right) * 2.0f) + (glm::vec3(0.0f, 1.0f, 0.0f) * (up + down) * 2.0f);
+    velocity = (motion * (forward + backward) * 3.0f) - (glm::normalize(glm::cross(motion, glm::vec3(0.0f, 1.0f, 0.0f))) * (left + right) * 3.0f) + (glm::vec3(0.0f, 1.0f, 0.0f) * (up + down) * 3.0f);
     
     position += velocity;
     

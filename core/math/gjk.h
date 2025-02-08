@@ -167,7 +167,11 @@ collision GJKCollision(Cube a, Cube b) {
     return collisionInformation;
 }
 
-bool GJKCollisionWithCamera(Cube a) {
+collision GJKCollisionWithCamera(Cube a) {
+    
+    collision collisionInformation{};
+    collisionInformation.collided = false;
+    
     std::vector<float> colliderVerticesA = a.GetColliderVertices();
     std::vector<float> colliderVerticesB = camera.GetColliderVertices();
     
@@ -184,18 +188,19 @@ bool GJKCollisionWithCamera(Cube a) {
         support = va - vb;
 
         if (glm::dot(support, direction) <= 0.0f) {
-            return false;
+            return collisionInformation;
         }
 
         simplex.pushFront(support);
 
         if (HandleSimplex(simplex, direction)) {
-            return true;
+            collisionInformation = EPA(simplex, a.GetColliderVertices(), camera.GetColliderVertices());
+            return collisionInformation;
         }
     }
 
     std::cout << "Terminated: Max iterations reached. No collision detected.\n";
-    return false;
+    return collisionInformation;
 }
 
 }

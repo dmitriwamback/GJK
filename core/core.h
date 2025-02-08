@@ -79,12 +79,12 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube.scale = glm::vec3(10.0f, 0.5f, 10.0f);
-    cube.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
-    cube.position = glm::vec3(1.0f, 0.0f, 0.0f);
+    cube.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+    cube.rotation = glm::vec3(45.0f, 0.0f, 135.0f);
+    cube.position = glm::vec3(1.0f, -1.0f, 0.0f);
     cube.color = glm::vec3(0.8f);
     
-    cube2.rotation = glm::vec3(45.0f, 0.0f, 0.0f);
+    cube2.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     cube2.position = glm::vec3(0.0f, 10.0f, 0.0f);
     
     cube3.scale = glm::vec3(10.0f, 1.0f, 12.0f);
@@ -117,7 +117,6 @@ void initialize() {
         cube2.position = camera.mouseRayDirection * 10.0f + camera.position;
         cube2.color = glm::vec3(0.8f);
         
-        cube.rotation = glm::vec3(45.0f, 0.0f, 135.0f);
         cube.color = glm::vec3(0.8f);
         
         cube3.color = glm::vec3(0.8f);
@@ -143,7 +142,15 @@ void initialize() {
             
             cube2.color = glm::vec3(0.9f, 0.0f, 0.0f);
         }
-        if (GJKCollisionWithCamera(cube)) {
+        
+        collision cameraCol = GJKCollisionWithCamera(cube);
+        if (cameraCol.collided) {
+            
+            if (glm::dot(cameraCol.normal, cube.position - camera.position) > 0) {
+                cameraCol.normal = -cameraCol.normal;
+            }
+            camera.position += cameraCol.normal*cameraCol.depth;
+            
             cube.color = glm::vec3(0.9f, 0.0f, 0.0f);
         }
         
