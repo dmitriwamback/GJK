@@ -110,12 +110,15 @@ void initialize() {
         float down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ? -0.05f : 0;
         
         camera.Update(movement, up, down);
+        std::cout << camera.position.x << " " << camera.position.y << " " << camera.position.z << '\n';
                         
         scroll = camera.lastYScroll;
         if (scroll < 5.0f) scroll = 5.0f;
         
         cube2.position = camera.mouseRayDirection * 10.0f + camera.position;
         cube2.color = glm::vec3(0.8f);
+        
+        cube.rotation.y += 0.1f;
         
         cube.color = glm::vec3(0.8f);
         
@@ -136,6 +139,8 @@ void initialize() {
             if (glm::dot(col.normal, cube2.position - cube.position) < 0) {
                 col.normal = -col.normal;
             }
+            
+            std::cout << col.depth << '\n';
             
             cube.color = glm::vec3(0.9f, 0.0f, 0.0f);
             cube2.position += col.normal*col.depth;

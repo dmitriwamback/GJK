@@ -28,7 +28,9 @@ std::pair<std::vector<glm::vec4>, size_t> GetNormal(std::vector<glm::vec3>& poly
         glm::vec3 B = polytope[indices[i*3 + 1]];
         glm::vec3 C = polytope[indices[i*3 + 2]];
         
-        glm::vec3 normal = glm::normalize(glm::cross(B - A, C - A));
+        glm::vec3 normal = glm::cross(B - A, C - A);
+        if (glm::length(normal) < 1e-6f) continue;
+        normal = glm::normalize(normal);
         float dst = dot(normal, A);
         if (dst < 0) {
             normal = -normal;
@@ -44,17 +46,14 @@ std::pair<std::vector<glm::vec4>, size_t> GetNormal(std::vector<glm::vec3>& poly
 }
 
 void AddUnique(std::vector<std::pair<size_t, size_t>>& edges, const std::vector<size_t>& faces, size_t a, size_t b) {
-    auto reverse = std::find(
-        edges.begin(),
-        edges.end(),
-        std::make_pair(faces[b], faces[a])
-    );
- 
+    auto reverse = std::find_if(edges.begin(), edges.end(),
+        [&](const std::pair<size_t, size_t>& edge) {
+            return (edge.first == faces[b] && edge.second == faces[a]);
+        });
+
     if (reverse != edges.end()) {
         edges.erase(reverse);
-    }
- 
-    else {
+    } else {
         edges.emplace_back(faces[a], faces[b]);
     }
 }
@@ -84,15 +83,16 @@ collision EPA(Simplex& simplex, std::vector<float> colliderA, std::vector<float>
         mindst = normals[minTriangle].w;
         
         glm::vec3 support = Support(colliderA, min) - Support(colliderB, -min);
+        if (glm::length(support) < 1e-6f) break;
         float sdst = glm::dot(min, support);
         
-        if (abs(sdst - mindst) > 0.01f) {
+        if (abs(sdst - mindst) > 0.001f && sdst < 1e6f) {
             
             mindst = FLT_MAX;
             std::vector<std::pair<size_t, size_t>> unique;
             
             for (size_t i = 0; i < normals.size(); i++) {
-                if (SameDirection(normals[i], support)) {
+                if (glm::dot(glm::vec3(normals[i]), support) > normals[i].w) {
                     size_t index = i*3;
 
                     AddUnique(unique, indices, index,     index + 1);
@@ -143,7 +143,7 @@ collision EPA(Simplex& simplex, std::vector<float> colliderA, std::vector<float>
     }
      
     collisionDetection.normal = min;
-    collisionDetection.depth = mindst + 0.001f;
+    collisionDetection.depth = std::min(mindst + 0.001f, 1e2f);
     collisionDetection.collided = true;
     
     return collisionDetection;
