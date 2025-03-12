@@ -10,23 +10,14 @@
 
 namespace core {
 
-class Cube {
+class Cube: public RObject {
 public:
-    std::vector<float> vertices;
-    std::vector<uint32_t> indices;
-    
-    uint32_t vao, vbo;
-    
-    glm::vec3 position, scale, rotation, color;
-    
-    static Cube Create();
+    static RObject* Create();
     void Render(Shader shader, GLenum renderingType, bool identityMatrix);
-    std::vector<float> GetColliderVertices(bool withNormals);
-    glm::mat4 CreateModelMatrix();
 };
 
-Cube Cube::Create() {
-    Cube cube = Cube();
+RObject* Cube::Create() {
+    RObject* cube = new Cube();
         
     std::vector<float> vertices = {
         -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
@@ -72,21 +63,21 @@ Cube Cube::Create() {
         -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
     };
     
-    cube.vertices = vertices;
-    cube.indices = std::vector<uint32_t>();
+    cube->vertices = vertices;
+    cube->indices = std::vector<uint32_t>();
     
-    cube.position = glm::vec3(0.0f, 0.0f, 0.0f);
-    cube.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    cube.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    cube->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    cube->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    cube->scale = glm::vec3(1.0f, 1.0f, 1.0f);
     
-    cube.color = glm::vec3(1.0f);
+    cube->color = glm::vec3(1.0f);
     
-    glGenVertexArrays(1, &cube.vao);
-    glBindVertexArray(cube.vao);
+    glGenVertexArrays(1, &cube->vao);
+    glBindVertexArray(cube->vao);
     
-    glGenBuffers(1, &cube.vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, cube.vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &cube.vertices[0], GL_STATIC_DRAW);
+    glGenBuffers(1, &cube->vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, cube->vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &cube->vertices[0], GL_STATIC_DRAW);
     
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -96,7 +87,7 @@ Cube Cube::Create() {
     return cube;
 }
 
-void Cube::Render(Shader shader, GLenum renderingType = GL_TRIANGLES, bool identityMatrix = false) {
+void Cube::Render(Shader shader, GLenum renderingType, bool identityMatrix) {
     
     shader.Use();
     
@@ -124,45 +115,6 @@ void Cube::Render(Shader shader, GLenum renderingType = GL_TRIANGLES, bool ident
     
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-}
-
-std::vector<float> Cube::GetColliderVertices(bool withNormals = false) {
-    
-    glm::mat4 model = CreateModelMatrix();
-    
-    std::vector<float> projectedVertices = std::vector<float>();
-    
-    for (int i = 0; i < vertices.size()/6; i++) {
-        glm::vec3 vertex = glm::vec3(vertices[i * 6], vertices[i * 6 + 1], vertices[i * 6 + 2]);
-        glm::vec3 projected = glm::vec3(model * glm::vec4(vertex, 1.0));
-        projectedVertices.push_back(projected.x);
-        projectedVertices.push_back(projected.y);
-        projectedVertices.push_back(projected.z);
-        if (withNormals) {
-            projectedVertices.push_back(0);
-            projectedVertices.push_back(0);
-            projectedVertices.push_back(0);
-        }
-    }
-    return projectedVertices;
-}
-
-glm::mat4 Cube::CreateModelMatrix() {
-    
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 translationMatrix = glm::mat4(1.0f);
-    translationMatrix = glm::translate(translationMatrix, position);
-    
-    glm::mat4 scaleMatrix = glm::mat4(1.0f);
-    scaleMatrix = glm::scale(scaleMatrix, scale);
-    
-    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0)) *
-                               glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
-                               glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1));
-    
-    model = translationMatrix * rotationMatrix * scaleMatrix;
-    
-    return model;
 }
 
 }
