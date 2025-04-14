@@ -137,7 +137,7 @@ collision GJKCollision(RObject* a, RObject* b) {
     collision collisionInformation{};
     collisionInformation.collided = false;
     
-    glm::vec3 support = Support(colliderVerticesA, glm::vec3(1.0f, 0.0f, 0.0f)) - Support(colliderVerticesB, glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::vec3 support = Support(colliderVerticesA, glm::vec3(1.0f, 0.0f, 0.0f)) - Support(colliderVerticesB, -glm::vec3(1.0f, 0.0f, 0.0f));
     
     Simplex simplex;
     simplex.pushFront(support);
@@ -175,7 +175,7 @@ collision GJKCollisionWithCamera(RObject* a) {
     std::vector<float> colliderVerticesA = a->GetColliderVertices();
     std::vector<float> colliderVerticesB = camera.GetColliderVertices();
     
-    glm::vec3 support = Support(colliderVerticesA, glm::vec3(1.0f, 0.0f, 0.0f)) - Support(colliderVerticesB, glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::vec3 support = Support(colliderVerticesA, glm::vec3(1.0f, 0.0f, 0.0f)) - Support(colliderVerticesB, -glm::vec3(1.0f, 0.0f, 0.0f));
     
     Simplex simplex;
     simplex.pushFront(support);

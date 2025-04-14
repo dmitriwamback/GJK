@@ -114,7 +114,6 @@ void initialize() {
         float up = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS ? 0.05f : 0;
         float down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ? -0.05f : 0;
         
-        camera.Update(movement, up, down);
         std::cout << camera.position.x << " " << camera.position.y << " " << camera.position.z << '\n';
                         
         scroll = camera.lastYScroll;
@@ -165,6 +164,8 @@ void initialize() {
             
             cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
         }
+        
+        camera.Update(movement, up, down);
         
         shader.Use();
         shader.SetMatrix4("projection", camera.projection);
