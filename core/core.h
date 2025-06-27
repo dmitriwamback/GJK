@@ -87,7 +87,7 @@ void initialize() {
     float scroll = 10.0f;
     
     cube->scale = glm::vec3(5.0f, 5.0f, 10.0f);
-    cube->rotation = glm::vec3(45.0f, 0.0f, 135.0f);
+    cube->rotation = glm::vec3(45.0f, 0.0f, 0.0f);
     cube->position = glm::vec3(1.0f, -1.0f, 0.0f);
     cube->color = glm::vec3(0.8f);
     
@@ -124,7 +124,7 @@ void initialize() {
         cube2->position = camera.mouseRayDirection * 10.0f + camera.position;
         cube2->color = glm::vec3(0.8f);
         
-        //cube->rotation.y += 0.1f;
+        cube->rotation.y += 0.1f;
         
         cube->color = glm::vec3(0.8f);
         
