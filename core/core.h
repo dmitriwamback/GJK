@@ -122,7 +122,7 @@ void initialize() {
         cube2->position = camera.mouseRayDirection * 10.0f + camera.position;
         cube2->color = glm::vec3(0.8f);
         
-        cube->rotation.y += 0.1f;
+        //cube->rotation.y += 0.1f;
         
         cube->color = glm::vec3(0.8f);
         
@@ -138,6 +138,8 @@ void initialize() {
             cube3->color = glm::vec3(0.0f, 0.0f, 0.9f);
             cube2->position = intersect->intersectionPoint;
         }
+        
+        camera.Update(movement, up, down);
         
         collision col = GJKCollision(cube, cube2);
         if (col.collided) {
@@ -165,7 +167,7 @@ void initialize() {
             cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
         }
         
-        camera.Update(movement, up, down);
+        camera.UpdateLookAtMatrix();
         
         shader.Use();
         shader.SetMatrix4("projection", camera.projection);

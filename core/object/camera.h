@@ -58,6 +58,8 @@ public:
     };
     
     static void Initialize();
+    
+    void UpdateLookAtMatrix();
     void Update(glm::vec4 movement, float up, float down);
     std::vector<float> GetColliderVertices();
     glm::mat4 CreateModelMatrix();
@@ -176,6 +178,10 @@ glm::mat4 Camera::CreateModelMatrix() {
     model = translationMatrix;
     
     return model;
+}
+
+void Camera::UpdateLookAtMatrix() {
+    lookAt = glm::lookAt(position, position + lookDirection, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 }
