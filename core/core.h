@@ -30,6 +30,8 @@ GLFWwindow* window;
 Shader shader;
 }
 
+#include "object/vertex.h"
+
 #include "object/object.h"
 #include "object/camera.h"
 #include "object/cube.h"
@@ -84,7 +86,7 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube->scale = glm::vec3(10.0f, 10.0f, 10.0f);
+    cube->scale = glm::vec3(5.0f, 5.0f, 10.0f);
     cube->rotation = glm::vec3(45.0f, 0.0f, 135.0f);
     cube->position = glm::vec3(1.0f, -1.0f, 0.0f);
     cube->color = glm::vec3(0.8f);

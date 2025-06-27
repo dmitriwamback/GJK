@@ -12,7 +12,7 @@ namespace core {
 
 class RObject {
 public:
-    std::vector<float> vertices;
+    std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     
     uint32_t vao, vbo, ebo;
@@ -20,27 +20,20 @@ public:
     glm::vec3 position, scale, rotation, color;
     
     virtual void Render(Shader shader, GLenum renderingType, bool identityMatrix) {}
-    std::vector<float> GetColliderVertices(bool withNormals);
+    std::vector<Vertex> GetColliderVertices(bool withNormals);
     glm::mat4 CreateModelMatrix();
 };
 
-std::vector<float> RObject::GetColliderVertices(bool withNormals = false) {
+std::vector<Vertex> RObject::GetColliderVertices(bool withNormals = false) {
     
     glm::mat4 model = CreateModelMatrix();
     
-    std::vector<float> projectedVertices = std::vector<float>();
+    std::vector<Vertex> projectedVertices = std::vector<Vertex>();
     
-    for (int i = 0; i < vertices.size()/6; i++) {
-        glm::vec3 vertex = glm::vec3(vertices[i * 6], vertices[i * 6 + 1], vertices[i * 6 + 2]);
+    for (int i = 0; i < vertices.size(); i++) {
+        glm::vec3 vertex = vertices[i].vertex;
         glm::vec3 projected = glm::vec3(model * glm::vec4(vertex, 1.0));
-        projectedVertices.push_back(projected.x);
-        projectedVertices.push_back(projected.y);
-        projectedVertices.push_back(projected.z);
-        if (withNormals) {
-            projectedVertices.push_back(0);
-            projectedVertices.push_back(0);
-            projectedVertices.push_back(0);
-        }
+        projectedVertices.push_back(Vertex(projected, glm::vec3(0.0f), glm::vec2(0.0f)));
     }
     return projectedVertices;
 }

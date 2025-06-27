@@ -131,8 +131,8 @@ bool HandleSimplex(Simplex& simplex, glm::vec3& direction) {
 
 collision GJKCollision(RObject* a, RObject* b) {
     
-    std::vector<float> colliderVerticesA = a->GetColliderVertices();
-    std::vector<float> colliderVerticesB = b->GetColliderVertices();
+    std::vector<Vertex> colliderVerticesA = a->GetColliderVertices();
+    std::vector<Vertex> colliderVerticesB = b->GetColliderVertices();
     
     collision collisionInformation{};
     collisionInformation.collided = false;
@@ -172,8 +172,8 @@ collision GJKCollisionWithCamera(RObject* a) {
     collision collisionInformation{};
     collisionInformation.collided = false;
     
-    std::vector<float> colliderVerticesA = a->GetColliderVertices();
-    std::vector<float> colliderVerticesB = camera.GetColliderVertices();
+    std::vector<Vertex> colliderVerticesA = a->GetColliderVertices();
+    std::vector<Vertex> colliderVerticesB = camera.GetColliderVertices();
     
     glm::vec3 support = Support(colliderVerticesA, glm::vec3(1.0f, 0.0f, 0.0f)) - Support(colliderVerticesB, -glm::vec3(1.0f, 0.0f, 0.0f));
     
@@ -198,9 +198,13 @@ collision GJKCollisionWithCamera(RObject* a) {
             return collisionInformation;
         }
     }
-
-    std::cout << "Terminated: Max iterations reached. No collision detected.\n";
     return collisionInformation;
+}
+
+bool GJKRaycastCCD() {
+    
+    
+    return false;
 }
 
 }

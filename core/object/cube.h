@@ -19,48 +19,48 @@ public:
 RObject* Cube::Create() {
     RObject* cube = new Cube();
         
-    std::vector<float> vertices = {
-        -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
-        // front face
-        -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-        // left face
-        -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
-        -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
-        -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
-        -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
-        -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
-        -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
-        // right face
-         1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
-         1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
-         1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
-         1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
-         1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
-         1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
-        // bottom face
-        -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
-         1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
-         1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
-         1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
-        -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
-        -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
-        // top face
-        -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-         1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f,
-         1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-         1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-        -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-        -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+    std::vector<Vertex> vertices = {
+        Vertex({-1.0f, -1.0f, -1.0f},  {0, 0, -1}, {0, 0}),
+        Vertex({ 1.0f,  1.0f, -1.0f},  {0, 0, -1}, {1, 1}),
+        Vertex({ 1.0f, -1.0f, -1.0f},  {0, 0, -1}, {1, 0}),
+        Vertex({ 1.0f,  1.0f, -1.0f},  {0, 0, -1}, {1, 1}),
+        Vertex({-1.0f, -1.0f, -1.0f},  {0, 0, -1}, {0, 0}),
+        Vertex({-1.0f,  1.0f, -1.0f},  {0, 0, -1}, {0, 1}),
+
+        Vertex({-1.0f, -1.0f,  1.0f},  {0, 0, 1}, {0, 0}),
+        Vertex({ 1.0f, -1.0f,  1.0f},  {0, 0, 1}, {1, 0}),
+        Vertex({ 1.0f,  1.0f,  1.0f},  {0, 0, 1}, {1, 1}),
+        Vertex({ 1.0f,  1.0f,  1.0f},  {0, 0, 1}, {1, 1}),
+        Vertex({-1.0f,  1.0f,  1.0f},  {0, 0, 1}, {0, 1}),
+        Vertex({-1.0f, -1.0f,  1.0f},  {0, 0, 1}, {0, 0}),
+
+        Vertex({-1.0f,  1.0f,  1.0f},  {-1, 0, 0}, {1, 1}),
+        Vertex({-1.0f,  1.0f, -1.0f},  {-1, 0, 0}, {1, 0}),
+        Vertex({-1.0f, -1.0f, -1.0f},  {-1, 0, 0}, {0, 0}),
+        Vertex({-1.0f, -1.0f, -1.0f},  {-1, 0, 0}, {0, 0}),
+        Vertex({-1.0f, -1.0f,  1.0f},  {-1, 0, 0}, {0, 1}),
+        Vertex({-1.0f,  1.0f,  1.0f},  {-1, 0, 0}, {1, 1}),
+
+        Vertex({ 1.0f,  1.0f,  1.0f},  {1, 0, 0}, {1, 1}),
+        Vertex({ 1.0f, -1.0f, -1.0f},  {1, 0, 0}, {0, 0}),
+        Vertex({ 1.0f,  1.0f, -1.0f},  {1, 0, 0}, {1, 0}),
+        Vertex({ 1.0f, -1.0f, -1.0f},  {1, 0, 0}, {0, 0}),
+        Vertex({ 1.0f,  1.0f,  1.0f},  {1, 0, 0}, {1, 1}),
+        Vertex({ 1.0f, -1.0f,  1.0f},  {1, 0, 0}, {0, 1}),
+
+        Vertex({-1.0f, -1.0f, -1.0f},  {0, -1, 0}, {0, 0}),
+        Vertex({ 1.0f, -1.0f, -1.0f},  {0, -1, 0}, {1, 0}),
+        Vertex({ 1.0f, -1.0f,  1.0f},  {0, -1, 0}, {1, 1}),
+        Vertex({ 1.0f, -1.0f,  1.0f},  {0, -1, 0}, {1, 1}),
+        Vertex({-1.0f, -1.0f,  1.0f},  {0, -1, 0}, {0, 1}),
+        Vertex({-1.0f, -1.0f, -1.0f},  {0, -1, 0}, {0, 0}),
+
+        Vertex({-1.0f,  1.0f, -1.0f},  {0, 1, 0}, {0, 0}),
+        Vertex({ 1.0f,  1.0f,  1.0f},  {0, 1, 0}, {1, 1}),
+        Vertex({ 1.0f,  1.0f, -1.0f},  {0, 1, 0}, {1, 0}),
+        Vertex({ 1.0f,  1.0f,  1.0f},  {0, 1, 0}, {1, 1}),
+        Vertex({-1.0f,  1.0f, -1.0f},  {0, 1, 0}, {0, 0}),
+        Vertex({-1.0f,  1.0f,  1.0f},  {0, 1, 0}, {0, 1}),
     };
     
     cube->vertices = vertices;
@@ -77,12 +77,14 @@ RObject* Cube::Create() {
     
     glGenBuffers(1, &cube->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, cube->vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &cube->vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), cube->vertices.data(), GL_STATIC_DRAW);
     
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
     
     return cube;
 }
@@ -95,26 +97,21 @@ void Cube::Render(Shader shader, GLenum renderingType, bool identityMatrix) {
         
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
     
     if (identityMatrix) {
-        std::vector<float> projectedVertices = GetColliderVertices(true);
-        
+        std::vector<Vertex> projectedVertices = GetColliderVertices(true);
         model = glm::mat4(1.0f);
         
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, projectedVertices.size() * sizeof(float), &projectedVertices[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, projectedVertices.size() * sizeof(Vertex), projectedVertices.data(), GL_STATIC_DRAW);
     }
     
     shader.SetMatrix4("model", model);
     shader.SetVector3("color", color);
     
     glDrawArrays(renderingType, 0, 36);
-    
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 
 }

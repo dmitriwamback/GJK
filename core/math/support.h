@@ -38,12 +38,12 @@ bool SameDirection(glm::vec3 direction, glm::vec3& AO) {
 // Support
 //------------------------------------------------------------------------------------------//
 
-glm::vec3 Support(const std::vector<float> colliderVertices, glm::vec3 direction) {
+glm::vec3 Support(const std::vector<Vertex> colliderVertices, glm::vec3 direction) {
 
     std::vector<glm::vec3> vertices;
     
-    for (int i = 0; i < colliderVertices.size()/3; i++) {
-        const glm::vec3& vertex = glm::vec3(colliderVertices[i * 3], colliderVertices[i * 3 + 1], colliderVertices[i * 3 + 2]);
+    for (int i = 0; i < colliderVertices.size(); i++) {
+        const glm::vec3& vertex = glm::vec3(colliderVertices[i].vertex);
         vertices.push_back(vertex);
     }
     return GetFurthestPoint(vertices, direction);

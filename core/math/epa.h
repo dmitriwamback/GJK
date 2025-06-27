@@ -58,7 +58,7 @@ void AddUnique(std::vector<std::pair<size_t, size_t>>& edges, const std::vector<
     }
 }
 
-collision EPA(Simplex& simplex, std::vector<float> colliderA, std::vector<float> colliderB) {
+collision EPA(Simplex& simplex, std::vector<Vertex> colliderA, std::vector<Vertex> colliderB) {
     
     collision collisionDetection{};
     collisionDetection.normal = glm::vec3(0.0f);

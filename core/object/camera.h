@@ -46,22 +46,22 @@ public:
         3, 6, 2, 3, 7, 6   // Reversed (CW)
     };
     
-    std::vector<float> vertices = {
-        -0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
+    std::vector<Vertex> vertices = {
+        Vertex({-0.5f,  0.5f,  0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
+        Vertex({ 0.5f,  0.5f,  0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
+        Vertex({ 0.5f, -0.5f,  0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
+        Vertex({-0.5f, -0.5f,  0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
+        Vertex({-0.5f,  0.5f, -0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
+        Vertex({ 0.5f,  0.5f, -0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
+        Vertex({ 0.5f, -0.5f, -0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
+        Vertex({-0.5f, -0.5f, -0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
     };
     
     static void Initialize();
     
     void UpdateLookAtMatrix();
     void Update(glm::vec4 movement, float up, float down);
-    std::vector<float> GetColliderVertices();
+    std::vector<Vertex> GetColliderVertices();
     glm::mat4 CreateModelMatrix();
 };
 
@@ -152,21 +152,18 @@ static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) 
     camera.lastYScroll = yoffset;
 }
 
-std::vector<float> Camera::GetColliderVertices() {
+std::vector<Vertex> Camera::GetColliderVertices() {
     
     glm::mat4 model = CreateModelMatrix();
     
-    std::vector<float> projectedVertices = std::vector<float>();
+    std::vector<Vertex> projectedVertices = std::vector<Vertex>();
     
-    for (int i = 0; i < vertices.size()/3; i++) {
-        glm::vec3 vertex = glm::vec3(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
+    for (int i = 0; i < vertices.size(); i++) {
+        glm::vec3 vertex = vertices[i].vertex;
         glm::vec3 projected = glm::vec3(model * glm::vec4(vertex, 1.0));
-        projectedVertices.push_back(projected.x);
-        projectedVertices.push_back(projected.y);
-        projectedVertices.push_back(projected.z);
+        projectedVertices.push_back(Vertex(projected, glm::vec3(0.0f), glm::vec2(0.0f)));
     }
     return projectedVertices;
-    
 }
 
 glm::mat4 Camera::CreateModelMatrix() {
