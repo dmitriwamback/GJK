@@ -78,7 +78,19 @@ void initialize() {
     glEnable(GL_PROGRAM_POINT_SIZE);
     
     Camera::Initialize();
-    RObject *cube = Cube::Create(), *cube2 = Cube::Create(), *cube3 = Cube::Create(), *terrain = Terrain::Create();
+    RObject *mouseRayCube = Cube::Create(), *cube3 = Cube::Create(), *terrain = Terrain::Create();
+    std::vector<RObject*> colliderCubes;
+    
+    for (int i = -4; i < 4; i++) {
+        for (int j = -4; j < 4; j++) {
+            RObject *newCube = Cube::Create();
+            newCube->scale = glm::vec3(5.0f, 5.0f, 5.0f);
+            newCube->rotation = glm::vec3(rand()%360, rand()%360, rand()%360);
+            newCube->position = glm::vec3(1.0f + i * 10, -1.0f, 0.0f + j * 10);
+            newCube->color = glm::vec3(0.8f);
+            colliderCubes.push_back(newCube);
+        }
+    }
     
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -86,13 +98,8 @@ void initialize() {
     float t = 0.0f;
     float scroll = 10.0f;
     
-    cube->scale = glm::vec3(5.0f, 5.0f, 10.0f);
-    cube->rotation = glm::vec3(45.0f, 0.0f, 0.0f);
-    cube->position = glm::vec3(1.0f, -1.0f, 0.0f);
-    cube->color = glm::vec3(0.8f);
-    
-    cube2->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    cube2->position = glm::vec3(0.0f, 10.0f, 0.0f);
+    mouseRayCube->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    mouseRayCube->position = glm::vec3(0.0f, 10.0f, 0.0f);
     
     cube3->scale = glm::vec3(10.0f, 1.0f, 12.0f);
     cube3->rotation = glm::vec3(45.0f, 0.0f, 0.0f);
@@ -121,12 +128,8 @@ void initialize() {
         scroll = camera.lastYScroll;
         if (scroll < 5.0f) scroll = 5.0f;
         
-        cube2->position = camera.mouseRayDirection * 10.0f + camera.position;
-        cube2->color = glm::vec3(0.8f);
-        
-        cube->rotation.y += 0.1f;
-        
-        cube->color = glm::vec3(0.8f);
+        mouseRayCube->position = camera.mouseRayDirection * 10.0f + camera.position;
+        mouseRayCube->color = glm::vec3(0.8f);
         
         cube3->color = glm::vec3(0.8f);
         
@@ -138,35 +141,37 @@ void initialize() {
         std::optional<Intersection> intersect = Raycast(ray, cube3->GetColliderVertices(), cube3->indices);
         if (intersect) {
             cube3->color = glm::vec3(0.0f, 0.0f, 0.9f);
-            cube2->position = intersect->intersectionPoint;
+            mouseRayCube->position = intersect->intersectionPoint;
         }
         
         camera.Update(movement, up, down);
-        
-        collision col = GJKCollision(cube, cube2);
-        if (col.collided) {
+                
+        for (RObject *_cube : colliderCubes) {
             
-            if (glm::dot(col.normal, cube2->position - cube->position) < 0) {
-                col.normal = -col.normal;
+            _cube->color = glm::vec3(0.8f);
+            
+            collision col = GJKCollision(_cube, mouseRayCube), cameraCol = GJKCollisionWithCamera(_cube);
+            if (col.collided) {
+                
+                if (glm::dot(col.normal, mouseRayCube->position - _cube->position) < 0) {
+                    col.normal = -col.normal;
+                }
+                                
+                _cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
+                mouseRayCube->position += col.normal*col.depth;
+                
+                mouseRayCube->color = glm::vec3(0.9f, 0.0f, 0.0f);
             }
             
-            std::cout << col.depth << '\n';
-            
-            cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
-            cube2->position += col.normal*col.depth;
-            
-            cube2->color = glm::vec3(0.9f, 0.0f, 0.0f);
-        }
-        
-        collision cameraCol = GJKCollisionWithCamera(cube);
-        if (cameraCol.collided) {
-            
-            if (glm::dot(cameraCol.normal, cube->position - camera.position) > 0) {
-                cameraCol.normal = -cameraCol.normal;
+            if (cameraCol.collided) {
+                
+                if (glm::dot(cameraCol.normal, _cube->position - camera.position) > 0) {
+                    cameraCol.normal = -cameraCol.normal;
+                }
+                camera.position += cameraCol.normal*cameraCol.depth;
+                
+                _cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
             }
-            camera.position += cameraCol.normal*cameraCol.depth;
-            
-            cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
         }
         
         camera.UpdateLookAtMatrix();
@@ -175,8 +180,10 @@ void initialize() {
         shader.SetMatrix4("projection", camera.projection);
         shader.SetMatrix4("lookAt", camera.lookAt);
         
-        renderDebugCube(cube);
-        renderDebugCube(cube2);
+        for (RObject *_cube : colliderCubes) {
+            renderDebugCube(_cube);
+        }
+        renderDebugCube(mouseRayCube);
         renderDebugCube(cube3);
         renderDebugCube(terrain);
         
