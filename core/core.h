@@ -42,6 +42,8 @@ Shader shader;
 #include "math/epa.h"
 #include "math/gjk.h"
 
+#include "object/octree_node.h"
+
 #include "math/noise.h"
 #include "math/calculate_normal.h"
 #include "object/terrain.h"
@@ -53,7 +55,7 @@ void renderDebugCube(RObject* object) {
     object->Render(shader, GL_TRIANGLES, false);
     
     object->color = glm::vec3(0.0f);
-    object->Render(shader, GL_LINES, true);
+    //object->Render(shader, GL_LINES, true);
 }
 
 void initialize() {
@@ -81,14 +83,19 @@ void initialize() {
     RObject *mouseRayCube = Cube::Create(), *cube3 = Cube::Create(), *terrain = Terrain::Create();
     std::vector<RObject*> colliderCubes;
     
-    for (int i = -4; i < 4; i++) {
-        for (int j = -4; j < 4; j++) {
+    core::OctreeNode* rootOctree = new core::OctreeNode();
+    rootOctree->min = glm::vec3(-500.0f, -500.0f, -500.0f);
+    rootOctree->max = glm::vec3(500.0f, 500.0f, 500.0f);
+    
+    for (int i = -20; i < 20; i++) {
+        for (int j = -20; j < 20; j++) {
             RObject *newCube = Cube::Create();
-            newCube->scale = glm::vec3(5.0f, 5.0f, 5.0f);
+            newCube->scale = glm::vec3(3.0f, 3.0f, 3.0f);
             newCube->rotation = glm::vec3(rand()%360, rand()%360, rand()%360);
-            newCube->position = glm::vec3(1.0f + i * 10, -1.0f, 0.0f + j * 10);
+            newCube->position = glm::vec3(i * 6, -1.0f, j * 6);
             newCube->color = glm::vec3(0.8f);
             colliderCubes.push_back(newCube);
+            core::InsertObject(rootOctree, newCube);
         }
     }
     
@@ -108,7 +115,22 @@ void initialize() {
     
     shader = Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
     
+    double previousTime = glfwGetTime();
+    int frameCount = 0;
+    
     while (!glfwWindowShouldClose(window)) {
+        
+        double currentTime = glfwGetTime();
+        frameCount++;
+
+        if (currentTime - previousTime >= 1.0) {
+            std::stringstream ss;
+            ss << "GJK Algorithm - FPS: " << frameCount;
+            glfwSetWindowTitle(window, ss.str().c_str());
+            
+            frameCount = 0;
+            previousTime = currentTime;
+        }
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.3, 0.3, 0.3, 0.0);
@@ -145,12 +167,24 @@ void initialize() {
         }
         
         camera.Update(movement, up, down);
-                
-        for (RObject *_cube : colliderCubes) {
-            
+        
+        std::vector<RObject*> candidates;
+        glm::vec3 queryMin = camera.position - glm::vec3(20.0f) * 0.5f;
+        glm::vec3 queryMax = camera.position + glm::vec3(20.0f) * 0.5f;
+
+        if (rootOctree->children[0]) {
+            candidates = core::ParallelQuery(rootOctree, queryMin, queryMax);
+        }
+        else {
+            core::QueryObjects(rootOctree, queryMin, queryMax, candidates);
+        }
+        
+        for (RObject *_cube : candidates) {
+                        
             _cube->color = glm::vec3(0.8f);
             
-            collision col = GJKCollision(_cube, mouseRayCube), cameraCol = GJKCollisionWithCamera(_cube);
+            collision col = GJKCollision(_cube, mouseRayCube),
+                      cameraCol = GJKCollisionWithCamera(_cube);
             if (col.collided) {
                 
                 if (glm::dot(col.normal, mouseRayCube->position - _cube->position) < 0) {

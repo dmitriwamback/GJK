@@ -29,8 +29,14 @@ std::pair<std::vector<glm::vec4>, size_t> GetNormal(std::vector<glm::vec3>& poly
         glm::vec3 C = polytope[indices[i*3 + 2]];
         
         glm::vec3 normal = glm::cross(B - A, C - A);
+        
+        float len = glm::length(normal);
+        if (len < 1e-6f)
+            continue;
+        
         normal = glm::normalize(normal);
         float dst = dot(normal, A);
+        
         if (dst < 0) {
             normal = -normal;
             dst = -dst;
