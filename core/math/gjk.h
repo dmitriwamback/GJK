@@ -144,7 +144,7 @@ collision GJKCollision(RObject* a, RObject* b) {
     
     glm::vec3 direction = -support;
     
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10; i++) {
         glm::vec3 va = Support(colliderVerticesA,  direction);
         glm::vec3 vb = Support(colliderVerticesB, -direction);
         support = va - vb;

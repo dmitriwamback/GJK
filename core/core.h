@@ -54,7 +54,7 @@ void renderDebugCube(RObject* object) {
     
     object->Render(shader, GL_TRIANGLES, false);
     
-    object->color = glm::vec3(0.0f);
+    //object->color = glm::vec3(0.0f);
     //object->Render(shader, GL_LINES, true);
 }
 
@@ -92,11 +92,14 @@ void initialize() {
             RObject *newCube = Cube::Create();
             newCube->scale = glm::vec3(3.0f, 3.0f, 3.0f);
             newCube->rotation = glm::vec3(rand()%360, rand()%360, rand()%360);
-            newCube->position = glm::vec3(i * 6, -1.0f, j * 6);
+            newCube->position = glm::vec3(i * 10, -1.0f, j * 10);
             newCube->color = glm::vec3(0.8f);
             colliderCubes.push_back(newCube);
-            core::InsertObject(rootOctree, newCube);
         }
+    }
+    
+    for (RObject* cube : colliderCubes) {
+        core::InsertObject(rootOctree, cube);
     }
     
     glfwSetCursorPosCallback(window, cursor_position_callback);
@@ -180,8 +183,6 @@ void initialize() {
         }
         
         for (RObject *_cube : candidates) {
-                        
-            _cube->color = glm::vec3(0.8f);
             
             collision col = GJKCollision(_cube, mouseRayCube),
                       cameraCol = GJKCollisionWithCamera(_cube);
@@ -205,6 +206,9 @@ void initialize() {
                 camera.position += cameraCol.normal*cameraCol.depth;
                 
                 _cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
+            }
+            else {
+                _cube->color = glm::vec3(0.8f);
             }
         }
         
