@@ -22,12 +22,12 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-
 #include "object/render/shader.h"
 
 namespace core {
 GLFWwindow* window;
 Shader shader;
+float deltaTime = 0;
 }
 
 #include "object/vertex.h"
@@ -58,8 +58,35 @@ void renderDebugCube(RObject* object) {
     //object->Render(shader, GL_LINES, true);
 }
 
+std::vector<core::Triangle> BuildTrianglesFromRObject(RObject* obj) {
+    std::vector<core::Triangle> tris;
+
+    std::vector<Vertex> verts = obj->GetColliderVertices();
+    const std::vector<uint32_t>& indices = obj->indices;
+
+    if (!indices.empty()) {
+        for (size_t i = 0; i < indices.size(); i += 3) {
+            const glm::vec3& a = verts[indices[i]].vertex;
+            const glm::vec3& b = verts[indices[i + 1]].vertex;
+            const glm::vec3& c = verts[indices[i + 2]].vertex;
+            tris.emplace_back(a, b, c);
+        }
+    }
+
+    else {
+        for (size_t i = 0; i < verts.size(); i += 3) {
+            const glm::vec3& a = verts[i].vertex;
+            const glm::vec3& b = verts[i + 1].vertex;
+            const glm::vec3& c = verts[i + 2].vertex;
+            tris.emplace_back(a, b, c);
+        }
+    }
+
+    return tris;
+}
+
 void initialize() {
-    
+
     if (!glfwInit()) {
         throw std::runtime_error("Couldn't initialize glfw");
     }
@@ -80,17 +107,17 @@ void initialize() {
     glEnable(GL_PROGRAM_POINT_SIZE);
     
     Camera::Initialize();
-    RObject *mouseRayCube = Cube::Create(), *cube3 = Cube::Create(), *terrain = Terrain::Create();
+    RObject *mouseRayCube = Cube::Create(), *debugRaycastCube = Cube::Create(), *terrain = Terrain::Create();
     std::vector<RObject*> colliderCubes;
     
     core::OctreeNode* rootOctree = new core::OctreeNode();
     rootOctree->min = glm::vec3(-500.0f, -500.0f, -500.0f);
     rootOctree->max = glm::vec3(500.0f, 500.0f, 500.0f);
     
-    for (int i = -20; i < 20; i++) {
-        for (int j = -20; j < 20; j++) {
+    for (int i = -10; i < 10; i++) {
+        for (int j = -10; j < 10; j++) {
             RObject *newCube = Cube::Create();
-            newCube->scale = glm::vec3(3.0f, 3.0f, 3.0f);
+            newCube->scale = glm::vec3(rand()%5 + 0.5f, rand()%5 + 0.5f, rand()%5 + 0.5f);
             newCube->rotation = glm::vec3(rand()%360, rand()%360, rand()%360);
             newCube->position = glm::vec3(i * 10, -1.0f, j * 10);
             newCube->color = glm::vec3(0.8f);
@@ -111,69 +138,79 @@ void initialize() {
     mouseRayCube->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     mouseRayCube->position = glm::vec3(0.0f, 10.0f, 0.0f);
     
-    cube3->scale = glm::vec3(10.0f, 1.0f, 12.0f);
-    cube3->rotation = glm::vec3(45.0f, 0.0f, 0.0f);
-    cube3->position = glm::vec3(0.0f, 0.0f, -40.0f);
-    cube3->color = glm::vec3(0.8f);
+    debugRaycastCube->scale = glm::vec3(10.0f, 1.0f, 12.0f);
+    debugRaycastCube->rotation = glm::vec3(45.0f, 0.0f, 0.0f);
+    debugRaycastCube->position = glm::vec3(0.0f, 0.0f, -40.0f);
+    debugRaycastCube->color = glm::vec3(0.8f);
     
     shader = Shader::Create("/Users/dmitriwamback/Documents/Projects/GJK/GJK/shader/main");
-    
-    double previousTime = glfwGetTime();
-    int frameCount = 0;
-    
-    while (!glfwWindowShouldClose(window)) {
-        
-        double currentTime = glfwGetTime();
-        frameCount++;
 
-        if (currentTime - previousTime >= 1.0) {
+    double lastFrameTime = glfwGetTime();
+    double fpsTimer = lastFrameTime;
+    int frameCount = 0;
+
+    while (!glfwWindowShouldClose(window)) {
+
+        double currentTime = glfwGetTime();
+        core::deltaTime = float(currentTime - lastFrameTime);
+        lastFrameTime = currentTime;
+
+        frameCount++;
+        if (currentTime - fpsTimer >= 1.0) {
             std::stringstream ss;
             ss << "GJK Algorithm - FPS: " << frameCount;
             glfwSetWindowTitle(window, ss.str().c_str());
-            
             frameCount = 0;
-            previousTime = currentTime;
+            fpsTimer += 1.0;
         }
-        
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.3, 0.3, 0.3, 0.0);
-        
-        glm::vec4 movement = glm::vec4(0.0f);
 
-        movement.z = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ?  0.05f : 0;
-        movement.w = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS ? -0.05f : 0;
-        movement.x = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ?  0.05f : 0;
-        movement.y = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ? -0.05f : 0;
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
+
+        glm::vec4 movement = glm::vec4(0.0f);
+        movement.z = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ?  1.0f : 0.0f;
+        movement.w = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS ? -1.0f : 0.0f;
+        movement.x = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ?  1.0f : 0.0f;
+        movement.y = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ? -1.0f : 0.0f;
         
-        float up = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS ? 0.05f : 0;
-        float down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ? -0.05f : 0;
-        
-        std::cout << camera.position.x << " " << camera.position.y << " " << camera.position.z << '\n';
+        float up   = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS ?  1.0f : 0.0f;
+        float down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ? -1.0f : 0.0f;
                         
         scroll = camera.lastYScroll;
         if (scroll < 5.0f) scroll = 5.0f;
         
         mouseRayCube->position = camera.mouseRayDirection * 10.0f + camera.position;
         mouseRayCube->color = glm::vec3(0.8f);
-        
-        cube3->color = glm::vec3(0.8f);
-        
+        debugRaycastCube->color = glm::vec3(0.8f);
         terrain->color = glm::vec3(0.8f);
-        
+
         Ray ray{};
         ray.origin = camera.position;
         ray.direction = camera.mouseRayDirection;
-        std::optional<Intersection> intersect = Raycast(ray, cube3->GetColliderVertices(), cube3->indices);
-        if (intersect) {
-            cube3->color = glm::vec3(0.0f, 0.0f, 0.9f);
-            mouseRayCube->position = intersect->intersectionPoint;
-        }
+        
+        glm::vec3 futureStep = camera.Step(movement, up, down), futureStep2 = camera.Step(movement, up, down, 2.0f);
+        glm::vec3 differentInSteps = futureStep - camera.position;
+        
+        std::cout << "-----------------------------------------------------------------------------" << '\n';
+        
+        std::cout << "Future Step: ";
+        std::cout << futureStep.x << "x " << futureStep.y << "y " << futureStep.z << 'z' <<  '\n';
+        
+        std::cout << "Current Position: ";
+        std::cout << camera.position.x << "x " << camera.position.y << "y " << camera.position.z << 'z' << '\n';
+        
+        std::cout << "Difference: ";
+        std::cout << differentInSteps.x << "x " << differentInSteps.y << "y " << differentInSteps.z << 'z' << '\n';
+        
+        std::cout << "-----------------------------------------------------------------------------" << '\n';
+        
+        std::cout << "DeltaTime: " << core::deltaTime << "s\n";
         
         camera.Update(movement, up, down);
-        
+
         std::vector<RObject*> candidates;
-        glm::vec3 queryMin = camera.position - glm::vec3(20.0f) * 0.5f;
-        glm::vec3 queryMax = camera.position + glm::vec3(20.0f) * 0.5f;
+        glm::vec3 queryMin = camera.position - glm::vec3(camera.speed * 1.5f) * 0.5f;
+        glm::vec3 queryMax = camera.position + glm::vec3(camera.speed * 1.5f) * 0.5f;
 
         if (rootOctree->children[0]) {
             candidates = core::ParallelQuery(rootOctree, queryMin, queryMax);
@@ -182,51 +219,63 @@ void initialize() {
             core::QueryObjects(rootOctree, queryMin, queryMax, candidates);
         }
         
-        for (RObject *_cube : candidates) {
+        std::optional<Intersection> intersect = Raycast(Ray{camera.position, camera.mouseRayDirection}, BuildTrianglesFromRObject(debugRaycastCube));
+        
+        if (intersect) {
+            debugRaycastCube->color = glm::vec3(0.0f, 0.0f, 0.9f);
+            mouseRayCube->position = intersect->intersectionPoint;
+            collision col = GJKCollision(mouseRayCube, debugRaycastCube);
             
-            collision col = GJKCollision(_cube, mouseRayCube),
-                      cameraCol = GJKCollisionWithCamera(_cube);
             if (col.collided) {
-                
-                if (glm::dot(col.normal, mouseRayCube->position - _cube->position) < 0) {
-                    col.normal = -col.normal;
-                }
-                                
-                _cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
-                mouseRayCube->position += col.normal*col.depth;
-                
+                if (glm::dot(col.normal, mouseRayCube->position - debugRaycastCube->position) < 0) col.normal = -col.normal;
+                mouseRayCube->position += col.normal * col.depth;
+            }
+        }
+        else {
+            debugRaycastCube->color = glm::vec3(0.8f);
+        }
+
+        for (RObject *_cube : candidates) {
+            collision col = GJKCollision(_cube, mouseRayCube);
+            collision cameraCol = GJKCollisionWithCamera(_cube);
+            
+            bool collidedWithCube = false;
+
+            if (col.collided) {
+                collidedWithCube = true;
+                if (glm::dot(col.normal, mouseRayCube->position - _cube->position) < 0) col.normal = -col.normal;
+
+                mouseRayCube->position += col.normal * col.depth;
                 mouseRayCube->color = glm::vec3(0.9f, 0.0f, 0.0f);
             }
-            
             if (cameraCol.collided) {
-                
-                if (glm::dot(cameraCol.normal, _cube->position - camera.position) > 0) {
-                    cameraCol.normal = -cameraCol.normal;
-                }
-                camera.position += cameraCol.normal*cameraCol.depth;
-                
+                collidedWithCube = true;
+                if (glm::dot(cameraCol.normal, camera.position - _cube->position) < 0) cameraCol.normal = -cameraCol.normal;
+
+                camera.position += cameraCol.normal * cameraCol.depth;
+            }
+            
+            if (collidedWithCube) {
                 _cube->color = glm::vec3(0.9f, 0.0f, 0.0f);
             }
             else {
                 _cube->color = glm::vec3(0.8f);
             }
         }
-        
+
         camera.UpdateLookAtMatrix();
-        
+
         shader.Use();
         shader.SetMatrix4("projection", camera.projection);
         shader.SetMatrix4("lookAt", camera.lookAt);
-        
-        for (RObject *_cube : colliderCubes) {
-            renderDebugCube(_cube);
-        }
+
+        for (RObject *_cube : colliderCubes) renderDebugCube(_cube);
         renderDebugCube(mouseRayCube);
-        renderDebugCube(cube3);
+        renderDebugCube(debugRaycastCube);
         renderDebugCube(terrain);
-        
+
         t += 0.01f;
-        
+
         glfwPollEvents();
         glfwSwapBuffers(window);
     }

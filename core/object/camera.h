@@ -12,7 +12,7 @@ namespace core {
 
 class Camera {
 public:
-    glm::vec3 position, lookDirection, velocity;
+    glm::vec3 position, lookDirection;
     glm::mat4 projection, lookAt;
     
     glm::vec3 mouseRayDirection;
@@ -20,31 +20,13 @@ public:
     float pitch;
     float yaw = 3.0f * 3.14159265358f/2.0f;
     float radius = 0.5f;
+    float speed = 30.0f;
     
     float deltaScroll, lastYScroll;
     
     float lastMouseX, lastMouseY;
     
     int mouseButton = GLFW_MOUSE_BUTTON_RIGHT;
-    
-    std::vector<uint32_t> indices = {
-        0, 2, 1, 0, 3, 2,  // Reversed (CW)
-
-        // Back face
-        5, 7, 4, 5, 6, 7,  // Reversed (CW)
-
-        // Left face
-        4, 3, 0, 4, 7, 3,  // Reversed (CW)
-
-        // Right face
-        1, 6, 5, 1, 2, 6,  // Reversed (CW)
-
-        // Top face
-        4, 1, 5, 4, 0, 1,  // Reversed (CW)
-
-        // Bottom face
-        3, 6, 2, 3, 7, 6   // Reversed (CW)
-    };
     
     std::vector<Vertex> vertices = {
         Vertex({-0.5f,  0.5f,  0.5f}, glm::vec3(0.0f), glm::vec2(0.0f)),
@@ -61,6 +43,10 @@ public:
     
     void UpdateLookAtMatrix();
     void Update(glm::vec4 movement, float up, float down);
+    
+    glm::vec3 CalculateVelocity(glm::vec4 movement, float up, float down);
+    glm::vec3 Step(glm::vec4 movement, float up, float down, float depth);
+    
     std::vector<Vertex> GetColliderVertices();
     glm::mat4 CreateModelMatrix();
 };
@@ -72,23 +58,50 @@ void Camera::Initialize() {
     
     camera.position = glm::vec3(0.0f, 6.0f, 0.0f);
     camera.lookDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-    camera.velocity = glm::vec3(0.0f);
     
     camera.projection = glm::perspective(3.14159265358f/2.0f, 3.0f/2.0f, 0.1f, 1000.0f);
 }
 
-void Camera::Update(glm::vec4 movement, float up, float down) {
+// Calculates and returns the velocity of the camera
+glm::vec3 Camera::CalculateVelocity(glm::vec4 movement, float up, float down) {
     
-    float forward = movement.x,
-          backward = movement.y,
-          left = movement.z,
-          right = movement.w;
+    float forward   = movement.x, // motion inflicted by the W key
+          backward  = movement.y, // motion inflicted by the S key
+          left      = movement.z, // motion inflicted by the A key
+          right     = movement.w; // motion inflicted by the D key
     
+    // straight ahead motion (where the camera is pointing to)
     glm::vec3 motion = lookDirection;
     
-    velocity = (motion * (forward + backward) * 3.0f) - (glm::normalize(glm::cross(motion, glm::vec3(0.0f, 1.0f, 0.0f))) * (left + right) * 3.0f) + (glm::vec3(0.0f, 1.0f, 0.0f) * (up + down) * 3.0f);
+    // motion perpendicular to the up vector and the motion vector
+    glm::vec3 rightMotion = glm::normalize(glm::cross(motion, glm::vec3(0.0f, 1.0f, 0.0f)));
     
-    position += velocity;
+    // motions are the sum of the opposite possible directions
+    // if at any time either the W and S keys are pressed at the same time, then forwardMotion is zero. the same goes for the others
+    float forwardMotion  = forward + backward,
+          sidewaysMotion = left + right,
+          verticalMotion = up + down;
+    
+    // define each velocities
+    glm::vec3 vStraight = motion * forwardMotion * speed;
+    glm::vec3 vRight    = rightMotion * sidewaysMotion * speed;
+    glm::vec3 vUp       = glm::vec3(0.0f, 1.0f, 0.0f) * verticalMotion * speed;
+    
+    return vStraight - vRight + vUp;
+}
+
+// Predicts the next camera position (useful for Continuous Collision Detection)
+glm::vec3 Camera::Step(glm::vec4 movement, float up, float down, float depth = 1) {
+    
+    glm::vec3 velocity = CalculateVelocity(movement, up, down);
+    
+    return position + velocity * depth * core::deltaTime;
+}
+
+// Updates the camera (position, velocity, lookDirection)
+void Camera::Update(glm::vec4 movement, float up, float down) {
+        
+    position = Step(movement, up, down);
     
     lookDirection = glm::normalize(glm::vec3(cos(camera.yaw) * cos(camera.pitch),
                                              sin(camera.pitch),
