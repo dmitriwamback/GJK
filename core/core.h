@@ -36,6 +36,10 @@ float deltaTime = 0;
 #include "object/camera.h"
 #include "object/cube.h"
 
+#include "math/noise.h"
+#include "math/calculate_normal.h"
+#include "object/terrain.h"
+
 #include "math/raycast.h"
 #include "math/simplex.h"
 #include "math/support.h"
@@ -44,9 +48,6 @@ float deltaTime = 0;
 
 #include "object/octree_node.h"
 
-#include "math/noise.h"
-#include "math/calculate_normal.h"
-#include "object/terrain.h"
 
 namespace core {
 
@@ -125,6 +126,9 @@ void initialize() {
         }
     }
     
+    for (RObject* collider : static_cast<Terrain*>(terrain)->colliders) {
+        core::InsertObject(rootOctree, collider);
+    }
     for (RObject* cube : colliderCubes) {
         core::InsertObject(rootOctree, cube);
     }
@@ -206,6 +210,8 @@ void initialize() {
         
         std::cout << "DeltaTime: " << core::deltaTime << "s\n";
         
+        std::cout << static_cast<Terrain*>(terrain)->colliders.size() << "\n";
+        
         camera.Update(movement, up, down);
 
         std::vector<RObject*> candidates;
@@ -253,6 +259,7 @@ void initialize() {
                 if (glm::dot(cameraCol.normal, camera.position - _cube->position) < 0) cameraCol.normal = -cameraCol.normal;
 
                 camera.position += cameraCol.normal * cameraCol.depth;
+                std::cout << "collided\n";
             }
             
             if (collidedWithCube) {

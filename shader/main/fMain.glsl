@@ -3,7 +3,7 @@
 out vec4 fragc;
 
 uniform vec3 color;
-vec3 lightPosition = vec3(100.0);
+vec3 lightPosition = vec3(10000.0);
 
 in prop {
     vec3 normal;
