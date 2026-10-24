@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <ostream>
+#include <sstream>
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -69,6 +70,19 @@ void Renderer::GameLoop() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
+        double currentTime = glfwGetTime();
+        deltaTime = float(currentTime - lastFrameTime);
+        lastFrameTime = currentTime;
+
+        frameCount++;
+        if (currentTime - fpsTimer >= 1.0) {
+            std::stringstream ss;
+            ss << "GJK Algorithm - FPS: " << frameCount;
+            glfwSetWindowTitle(window, ss.str().c_str());
+            frameCount = 0;
+            fpsTimer += 1.0;
+        }
+
         glm::vec4 movement;
         movement.x = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ?  1.0f : 0.0f;
         movement.y = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ? -1.0f : 0.0f;
@@ -84,7 +98,7 @@ void Renderer::GameLoop() {
         Ray cameraRay = camera.GetMouseRay(windowWidth, windowHeight);
         scene->CastRay(cameraRay);
 
-        camera.Update(movement, up, down, window);
+        camera.Update(movement, up, down, window, deltaTime);
         scene->Collide(rootNode, camera);
         camera.UpdateLookAtMatrix();
         scene->Render(camera);

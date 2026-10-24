@@ -47,9 +47,9 @@ glm::vec3 Camera::CalculateVelocity(glm::vec4 movement, float up, float down) co
     return vStraight - vRight + vUp;
 }
 
-void Camera::Update(glm::vec4 movement, float up, float down, GLFWwindow* window) {
+void Camera::Update(glm::vec4 movement, float up, float down, GLFWwindow* window, float deltaTime) {
     glm::vec3 velocity = CalculateVelocity(movement, up, down);
-    position += velocity;
+    position += velocity * deltaTime;
 
     lookDirection = glm::normalize(glm::vec3(cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)));
     lookAt = glm::lookAt(position, position + lookDirection, upDirection);

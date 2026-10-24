@@ -24,6 +24,11 @@ private:
     OctreeNode* rootNode;
     GLFWwindow *window;
 
+    float deltaTime;
+    float lastFrameTime;
+    int frameCount;
+    int fpsTimer;
+
     static void CursorPositionCallback(GLFWwindow *window, double xpos, double ypos);
 };
 

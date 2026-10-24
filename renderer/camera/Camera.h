@@ -24,14 +24,14 @@ public:
     glm::mat4 projection, lookAt;
 
     float yaw = 0, pitch = 0;
-    float speed = 0.5f;
+    float speed = 40.0f;
 
     float lastMouseX, lastMouseY;
     int mouseButton = GLFW_MOUSE_BUTTON_RIGHT;
 
     Camera();
 
-    void Update(glm::vec4 movement, float up, float down, GLFWwindow* window);
+    void Update(glm::vec4 movement, float up, float down, GLFWwindow* window, float deltaTime);
     void UpdateLookAtMatrix();
     Ray GetMouseRay(int windowWidth, int windowHeight);
 
