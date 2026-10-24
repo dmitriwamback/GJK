@@ -49,7 +49,7 @@ $\vec{a}$ and $\vec{b}$ are points on the boundaries of shapes $A$ and $B$
 
 ## 2. Support function as defined by $S(X, \vec{d})$ for convex shape $X$:
 
-$$ S(X, \vec{d}) = \operatorname*{arg\,max}_{\vec{x} \in X} \vec{d} \cdot \vec{x} $$
+$$ S(X, \vec{d}) = \argmax_{\vec{x} \in X} \vec{d} \cdot \vec{x} $$
 
 <p>Where:</p>
 
