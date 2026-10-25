@@ -88,8 +88,8 @@ Given a triangle with vertices $\vec{v}_0$, $\vec{v}_1$, $\vec{v}_2$, it is impo
 
 The area can be computed by constructing 2 adjacent boundaries of the triangle as such:
 
-$$ \vec{b}_1 = \vec{v}_0 - \vec{v}_1 $$
-$$ \vec{b}_2 = \vec{v}_0 - \vec{v}_2 $$
+$$ \vec{b}_1 = \vec{v}_1 - \vec{v}_0 $$
+$$ \vec{b}_2 = \vec{v}_2 - \vec{v}_0 $$
 
 The area, denoted as $A$, of the triangle is calculated using the cross product:
 

@@ -24,6 +24,7 @@ void Scene::Populate(OctreeNode* rootNode, GameObject *gameObject) {
 void Scene::Collide(OctreeNode* rootNode, Camera& camera) {
 
     for (GameObject* gameObject : GetCandidateGameObjects(rootNode, camera)) {
+
         Collision collision = GJK::PerformGJK(gameObject->GetTransformedVertices(), camera.GetTransformedVertices());
         if (collision.collided) {
             camera.position += collision.normal * collision.depth;
